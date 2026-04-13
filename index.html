@@ -3,2208 +3,1562 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>植物科學研究助理 · PhytoScholar</title>
+<title>PhytoScholar</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500&display=swap" rel="stylesheet">
 <style>
-  :root {
-    --bg: #0d1117;
-    --surface: #161b22;
-    --surface2: #1c2330;
-    --border: #21262d;
-    --green: #3fb950;
-    --green-dim: #1a4020;
-    --green-glow: rgba(63,185,80,0.15);
-    --amber: #d29922;
-    --amber-dim: #3d2c00;
-    --blue: #58a6ff;
-    --blue-dim: #0d2744;
-    --red: #f85149;
-    --purple: #bc8cff;
-    --text: #e6edf3;
-    --text-muted: #7d8590;
-    --text-dim: #484f58;
-    --radius: 8px;
-    --radius-lg: 14px;
-  }
+:root {
+  --ink: #1a1a1a;
+  --ink-2: #444;
+  --ink-3: #888;
+  --ink-4: #bbb;
+  --rule: #e2e2e2;
+  --bg: #f9f7f4;
+  --surface: #ffffff;
+  --accent: #2d6a4f;
+  --accent-dim: #eaf2ee;
+  --accent-mid: #52b788;
+  --warn: #b5451b;
+  --warn-dim: #fdf0eb;
+  --info: #1d4e89;
+  --info-dim: #eaf0f9;
+  --amber: #92580a;
+  --amber-dim: #fdf5e6;
+  --r: 4px;
+  --r-lg: 8px;
+  --mono: 'IBM Plex Mono', monospace;
+  --serif: 'Libre Baskerville', serif;
+  --sans: 'Noto Sans TC', sans-serif;
+}
 
-  * { box-sizing: border-box; margin: 0; padding: 0; }
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-  body {
-    background: var(--bg);
-    color: var(--text);
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 14px;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+html { font-size: 15px; }
 
-  /* Animated background */
-  body::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    background:
-      radial-gradient(ellipse 60% 40% at 10% 20%, rgba(63,185,80,0.04) 0%, transparent 60%),
-      radial-gradient(ellipse 50% 60% at 90% 80%, rgba(88,166,255,0.04) 0%, transparent 60%);
-    pointer-events: none;
-    z-index: 0;
-  }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  font-weight: 400;
+  line-height: 1.6;
+  min-height: 100vh;
+}
 
-  /* ─── Layout ─── */
-  .app { display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
+/* ── Typography ── */
+.serif { font-family: var(--serif); }
+.mono  { font-family: var(--mono); }
 
-  header {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 16px 28px;
-    border-bottom: 1px solid var(--border);
-    background: rgba(13,17,23,0.8);
-    backdrop-filter: blur(12px);
-    position: sticky; top: 0; z-index: 100;
-  }
+/* ── Top bar ── */
+.topbar {
+  background: var(--surface);
+  border-bottom: 1px solid var(--rule);
+  padding: 0 32px;
+  height: 52px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: sticky; top: 0; z-index: 100;
+}
 
-  .logo {
-    display: flex; align-items: baseline; gap: 10px;
-  }
-  .logo-name {
-    font-family: 'Playfair Display', serif;
-    font-size: 22px;
-    color: var(--text);
-    letter-spacing: -0.5px;
-  }
-  .logo-name span { color: var(--green); }
-  .logo-tag {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text-muted);
-    background: var(--surface2);
-    border: 1px solid var(--border);
-    padding: 2px 7px;
-    border-radius: 20px;
-    letter-spacing: 0.5px;
-  }
+.brand {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  letter-spacing: -.3px;
+  color: var(--ink);
+  display: flex; align-items: baseline; gap: 10px;
+}
+.brand-dot { color: var(--accent); }
+.brand-tag {
+  font-family: var(--mono);
+  font-size: .65rem;
+  color: var(--ink-3);
+  letter-spacing: .5px;
+  font-weight: 400;
+}
 
-  .header-right {
-    display: flex; align-items: center; gap: 12px;
-  }
+.topbar-actions { display: flex; align-items: center; gap: 10px; }
 
-  .status-dot {
-    width: 8px; height: 8px;
-    border-radius: 50%;
-    background: var(--green);
-    box-shadow: 0 0 8px var(--green);
-    animation: pulse 2s infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
-  }
+.pill {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: .75rem;
+  font-family: var(--mono);
+  cursor: pointer;
+  border: 1px solid var(--rule);
+  background: transparent;
+  color: var(--ink-2);
+  transition: all .15s;
+}
+.pill:hover { border-color: var(--ink-3); color: var(--ink); }
+.pill-accent {
+  background: var(--accent);
+  color: #fff;
+  border-color: var(--accent);
+  font-weight: 500;
+}
+.pill-accent:hover { background: #246040; color: #fff; }
 
-  .btn {
-    padding: 7px 16px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    background: var(--surface);
-    color: var(--text);
-    cursor: pointer;
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 13px;
-    transition: all 0.2s;
-  }
-  .btn:hover { border-color: var(--green); color: var(--green); }
-  .btn-primary {
-    background: var(--green);
-    color: #0d1117;
-    border-color: var(--green);
-    font-weight: 700;
-  }
-  .btn-primary:hover { background: #52d168; color: #0d1117; }
+.status-pip {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--ink-4);
+  transition: background .3s;
+}
+.status-pip.active { background: var(--accent-mid); box-shadow: 0 0 0 3px rgba(82,183,136,.2); }
+.status-pip.busy   { background: var(--amber); animation: blink .8s infinite; }
+@keyframes blink { 50% { opacity: .3; } }
 
-  main {
-    display: grid;
-    grid-template-columns: 280px 1fr;
-    flex: 1;
-    gap: 0;
-  }
+/* ── Layout ── */
+.shell {
+  display: grid;
+  grid-template-columns: 288px 1fr;
+  min-height: calc(100vh - 52px);
+}
 
-  /* ─── Sidebar ─── */
-  aside {
-    border-right: 1px solid var(--border);
-    background: var(--surface);
-    padding: 20px 16px;
-    display: flex; flex-direction: column; gap: 20px;
-    min-height: calc(100vh - 57px);
-  }
+/* ── Sidebar ── */
+aside {
+  background: var(--surface);
+  border-right: 1px solid var(--rule);
+  padding: 24px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  overflow-y: auto;
+  height: calc(100vh - 52px);
+  position: sticky; top: 52px;
+}
 
-  .section-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text-dim);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-    margin-bottom: 8px;
-  }
+.s-section-label {
+  font-family: var(--mono);
+  font-size: .65rem;
+  letter-spacing: 1.2px;
+  color: var(--ink-4);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
 
-  /* Keyword input area */
-  .keyword-input-wrap {
-    display: flex; gap: 6px;
-  }
-  .keyword-input {
-    flex: 1;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text);
-    padding: 8px 12px;
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .keyword-input:focus { border-color: var(--green); }
-  .keyword-input::placeholder { color: var(--text-dim); }
+/* Keyword input */
+.kw-row { display: flex; gap: 6px; }
+.kw-input {
+  flex: 1;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  padding: 7px 10px;
+  font-family: var(--sans);
+  font-size: .85rem;
+  color: var(--ink);
+  background: var(--bg);
+  outline: none;
+  transition: border-color .15s;
+}
+.kw-input:focus { border-color: var(--accent); }
+.kw-input::placeholder { color: var(--ink-4); }
 
-  .keyword-add-btn {
-    width: 34px; height: 34px;
-    background: var(--green-dim);
-    border: 1px solid var(--green);
-    border-radius: var(--radius);
-    color: var(--green);
-    font-size: 18px;
-    cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    transition: all 0.2s;
-    flex-shrink: 0;
-  }
-  .keyword-add-btn:hover { background: var(--green); color: #0d1117; }
+.add-btn {
+  width: 32px; height: 32px;
+  border-radius: var(--r);
+  border: 1px solid var(--accent);
+  background: var(--accent-dim);
+  color: var(--accent);
+  font-size: 1.1rem;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: all .15s; flex-shrink: 0;
+}
+.add-btn:hover { background: var(--accent); color: #fff; }
 
-  .keyword-tags {
-    display: flex; flex-wrap: wrap; gap: 6px;
-    margin-top: 4px;
-  }
+.kw-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.kw-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--accent-dim);
+  border: 1px solid rgba(45,106,79,.2);
+  color: var(--accent);
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: .75rem;
+  font-family: var(--mono);
+}
+.kw-chip .rm { cursor: pointer; opacity: .5; font-size: .85rem; line-height: 1; transition: opacity .15s; }
+.kw-chip .rm:hover { opacity: 1; }
 
-  .keyword-tag {
-    display: inline-flex; align-items: center; gap: 5px;
-    background: var(--green-dim);
-    border: 1px solid rgba(63,185,80,0.3);
-    color: var(--green);
-    padding: 4px 10px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-family: 'DM Mono', monospace;
-    cursor: default;
-  }
-  .keyword-tag .rm {
-    cursor: pointer; opacity: 0.6; font-size: 14px;
-    line-height: 1; transition: opacity 0.2s;
-  }
-  .keyword-tag .rm:hover { opacity: 1; }
+/* Source list */
+.src-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--rule);
+  cursor: pointer;
+}
+.src-row:last-child { border-bottom: none; }
+.src-info { display: flex; align-items: center; gap: 8px; font-size: .85rem; color: var(--ink-2); }
+.src-icon { font-size: .95rem; }
 
-  /* Source toggles */
-  .source-toggle {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 8px 10px;
-    border-radius: var(--radius);
-    border: 1px solid var(--border);
-    margin-bottom: 6px;
-    background: var(--bg);
-    cursor: pointer;
-    transition: all 0.2s;
-  }
-  .source-toggle:hover { border-color: var(--text-muted); }
-  .source-toggle.active { border-color: var(--green); background: var(--green-dim); }
-  .source-info { display: flex; align-items: center; gap: 8px; }
-  .source-icon { font-size: 16px; }
-  .source-name { font-size: 13px; }
-  .toggle-switch {
-    width: 30px; height: 16px;
-    background: var(--border);
-    border-radius: 8px;
-    position: relative;
-    transition: background 0.2s;
-  }
-  .source-toggle.active .toggle-switch { background: var(--green); }
-  .toggle-switch::after {
-    content: '';
-    position: absolute;
-    width: 12px; height: 12px;
-    background: white;
-    border-radius: 50%;
-    top: 2px; left: 2px;
-    transition: transform 0.2s;
-  }
-  .source-toggle.active .toggle-switch::after { transform: translateX(14px); }
+/* Toggle */
+.tog {
+  width: 28px; height: 15px;
+  background: var(--rule);
+  border-radius: 10px;
+  position: relative;
+  transition: background .2s;
+  flex-shrink: 0;
+}
+.tog.on { background: var(--accent); }
+.tog::after {
+  content: '';
+  position: absolute;
+  width: 11px; height: 11px;
+  background: #fff;
+  border-radius: 50%;
+  top: 2px; left: 2px;
+  transition: transform .2s;
+  box-shadow: 0 1px 2px rgba(0,0,0,.15);
+}
+.tog.on::after { transform: translateX(13px); }
 
-  /* Schedule */
-  .schedule-select {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text);
-    padding: 8px 12px;
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 13px;
-    outline: none;
-    appearance: none;
-  }
+/* Collapsible section */
+.collapsible-hd {
+  display: flex; align-items: center; justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+}
+.collapsible-hd .chevron {
+  font-size: .7rem; color: var(--ink-3);
+  transition: transform .2s;
+}
+.collapsible-hd.open .chevron { transform: rotate(180deg); }
+.collapsible-body { display: none; margin-top: 10px; }
+.collapsible-body.open { display: block; }
 
-  .run-btn {
-    width: 100%;
-    padding: 11px;
-    background: var(--green);
-    color: #0d1117;
-    border: none;
-    border-radius: var(--radius);
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.2s;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    margin-top: auto;
-  }
-  .run-btn:hover { background: #52d168; transform: translateY(-1px); }
-  .run-btn:active { transform: translateY(0); }
-  .run-btn.loading { background: var(--green-dim); color: var(--green); cursor: not-allowed; }
-  .run-btn .spinner {
-    width: 14px; height: 14px;
-    border: 2px solid currentColor;
-    border-top-color: transparent;
-    border-radius: 50%;
-    animation: spin 0.7s linear infinite;
-    display: none;
-  }
-  .run-btn.loading .spinner { display: block; }
-  @keyframes spin { to { transform: rotate(360deg); } }
+/* API key */
+.api-input {
+  width: 100%;
+  border: 1px solid var(--rule);
+  border-radius: var(--r);
+  padding: 7px 10px;
+  font-family: var(--mono);
+  font-size: .75rem;
+  color: var(--ink);
+  background: var(--bg);
+  outline: none;
+  transition: border-color .15s;
+}
+.api-input:focus { border-color: var(--info); }
+.api-note { font-size: .72rem; color: var(--ink-3); margin-top: 5px; line-height: 1.5; }
+.api-note a { color: var(--info); text-decoration: none; }
 
-  /* ─── Main Content ─── */
-  .content {
-    padding: 24px 28px;
-    display: flex; flex-direction: column; gap: 24px;
-    overflow-y: auto;
-  }
+/* Organism chips */
+.org-chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  background: var(--info-dim);
+  border: 1px solid rgba(29,78,137,.15);
+  color: var(--info);
+  padding: 3px 9px;
+  border-radius: 20px;
+  font-size: .72rem;
+  font-family: var(--mono);
+}
+.org-chip .rm { cursor: pointer; opacity: .5; font-size: .8rem; }
+.org-chip .rm:hover { opacity: 1; }
 
-  /* Stats bar */
-  .stats-bar {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 12px;
-  }
+/* Range */
+.range-row { display: flex; align-items: center; gap: 8px; }
+.range-row input[type=range] { flex: 1; accent-color: var(--accent); }
+.range-val { font-family: var(--mono); font-size: .8rem; color: var(--accent); width: 24px; text-align: right; }
 
-  .stat-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 16px 18px;
-    display: flex; flex-direction: column; gap: 4px;
-    transition: border-color 0.2s;
-  }
-  .stat-card:hover { border-color: var(--text-muted); }
-  .stat-label {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    color: var(--text-muted);
-    letter-spacing: 1px;
-    text-transform: uppercase;
-  }
-  .stat-value {
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--text);
-    line-height: 1;
-  }
-  .stat-value.green { color: var(--green); }
-  .stat-value.amber { color: var(--amber); }
-  .stat-value.blue { color: var(--blue); }
-  .stat-value.purple { color: var(--purple); }
-  .stat-sub {
-    font-size: 11px;
-    color: var(--text-dim);
-    margin-top: 2px;
-  }
+/* Run button */
+.run-btn {
+  width: 100%;
+  padding: 10px;
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: var(--r);
+  font-family: var(--sans);
+  font-size: .9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background .15s, transform .1s;
+  display: flex; align-items: center; justify-content: center; gap: 7px;
+  margin-top: auto;
+}
+.run-btn:hover { background: #246040; }
+.run-btn:active { transform: scale(.99); }
+.run-btn.busy { background: #aaa; cursor: not-allowed; }
+.spinner {
+  width: 13px; height: 13px;
+  border: 2px solid rgba(255,255,255,.4);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin .7s linear infinite;
+  display: none;
+}
+.run-btn.busy .spinner { display: block; }
+@keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Tabs */
-  .tabs {
-    display: flex; gap: 2px;
-    border-bottom: 1px solid var(--border);
-    padding-bottom: 0;
-  }
-  .tab {
-    padding: 8px 18px;
-    border-radius: var(--radius) var(--radius) 0 0;
-    cursor: pointer;
-    font-size: 13px;
-    color: var(--text-muted);
-    border: 1px solid transparent;
-    border-bottom: none;
-    transition: all 0.2s;
-    position: relative;
-    bottom: -1px;
-  }
-  .tab:hover { color: var(--text); }
-  .tab.active {
-    color: var(--text);
-    background: var(--bg);
-    border-color: var(--border);
-    border-bottom-color: var(--bg);
-  }
+/* ── Main content ── */
+main {
+  padding: 28px 36px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  min-width: 0;
+}
 
-  /* Section headers */
-  .section-header {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-bottom: 14px;
-  }
-  .section-title {
-    font-family: 'Playfair Display', serif;
-    font-size: 18px;
-    color: var(--text);
-  }
-  .section-title small {
-    font-family: 'DM Mono', monospace;
-    font-size: 11px;
-    color: var(--text-muted);
-    font-style: normal;
-    margin-left: 10px;
-  }
+/* Stats strip */
+.stats-strip {
+  display: flex; gap: 0;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  background: var(--surface);
+  overflow: hidden;
+}
+.stat-cell {
+  flex: 1;
+  padding: 14px 20px;
+  border-right: 1px solid var(--rule);
+  display: flex; flex-direction: column; gap: 2px;
+}
+.stat-cell:last-child { border-right: none; }
+.stat-lbl { font-family: var(--mono); font-size: .62rem; letter-spacing: .8px; color: var(--ink-4); text-transform: uppercase; }
+.stat-val { font-family: var(--serif); font-size: 1.5rem; color: var(--ink); line-height: 1.1; }
+.stat-val.accent { color: var(--accent); }
+.stat-val.warn { color: var(--warn); }
+.stat-val.info { color: var(--info); }
+.stat-sub { font-size: .72rem; color: var(--ink-3); }
 
-  /* Research gap card */
-  .gap-card {
-    background: linear-gradient(135deg, var(--amber-dim) 0%, var(--bg) 100%);
-    border: 1px solid var(--amber);
-    border-radius: var(--radius-lg);
-    padding: 18px 20px;
-    margin-bottom: 12px;
-    position: relative;
-    overflow: hidden;
-  }
-  .gap-card::before {
-    content: '⚠';
-    position: absolute;
-    right: 16px; top: 14px;
-    font-size: 20px;
-    opacity: 0.3;
-  }
-  .gap-title {
-    font-weight: 700;
-    color: var(--amber);
-    margin-bottom: 6px;
-    font-size: 14px;
-  }
-  .gap-body { color: var(--text); line-height: 1.7; font-size: 13px; }
-  .gap-keywords {
-    margin-top: 10px;
-    display: flex; flex-wrap: wrap; gap: 5px;
-  }
-  .gap-kw {
-    background: rgba(210,153,34,0.15);
-    border: 1px solid rgba(210,153,34,0.3);
-    color: var(--amber);
-    padding: 2px 9px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-  }
+/* Tabs */
+.tab-bar {
+  display: flex; gap: 0;
+  border-bottom: 1px solid var(--rule);
+  overflow-x: auto;
+}
+.tab-bar::-webkit-scrollbar { display: none; }
+.tab-btn {
+  padding: 9px 18px;
+  font-size: .82rem;
+  color: var(--ink-3);
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  white-space: nowrap;
+  transition: color .15s, border-color .15s;
+  font-family: var(--sans);
+  background: none; border-top: none; border-left: none; border-right: none;
+}
+.tab-btn:hover { color: var(--ink-2); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); font-weight: 500; }
 
-  /* Paper card */
-  .paper-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 16px 20px;
-    margin-bottom: 10px;
-    transition: all 0.2s;
-    position: relative;
-  }
-  .paper-card:hover {
-    border-color: var(--blue);
-    transform: translateX(2px);
-  }
-  .paper-meta {
-    display: flex; align-items: center; gap: 8px;
-    margin-bottom: 8px;
-  }
-  .paper-source-badge {
-    font-family: 'DM Mono', monospace;
-    font-size: 10px;
-    padding: 2px 8px;
-    border-radius: 20px;
-    letter-spacing: 0.5px;
-    font-weight: 500;
-  }
-  .badge-arxiv { background: rgba(88,166,255,0.15); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
-  .badge-pubmed { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
-  .badge-crossref { background: rgba(188,140,255,0.15); color: var(--purple); border: 1px solid rgba(188,140,255,0.3); }
-  .badge-twitter { background: rgba(88,166,255,0.1); color: #4ea2e8; border: 1px solid rgba(88,166,255,0.2); }
-  .badge-biorxiv { background: rgba(183,100,50,0.15); color: #e07840; border: 1px solid rgba(183,100,50,0.35); }
-  .paper-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); }
-  .paper-title {
-    font-size: 14px;
-    font-weight: 500;
-    color: var(--text);
-    margin-bottom: 6px;
-    line-height: 1.5;
-  }
-  .paper-title a { color: inherit; text-decoration: none; }
-  .paper-title a:hover { color: var(--blue); text-decoration: underline; }
-  .paper-authors { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
-  .paper-abstract {
-    font-size: 12px;
-    color: var(--text-muted);
-    line-height: 1.7;
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
-  .paper-abstract.expanded { -webkit-line-clamp: unset; }
-  .paper-footer {
-    display: flex; align-items: center; justify-content: space-between;
-    margin-top: 10px;
-    padding-top: 10px;
-    border-top: 1px solid var(--border);
-  }
-  .paper-keywords { display: flex; gap: 5px; flex-wrap: wrap; }
-  .pkw {
-    background: var(--blue-dim);
-    color: var(--blue);
-    border: 1px solid rgba(88,166,255,0.2);
-    padding: 2px 8px;
-    border-radius: 20px;
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-  }
-  .paper-actions { display: flex; gap: 6px; }
-  .paper-action-btn {
-    background: none; border: 1px solid var(--border);
-    border-radius: 6px; color: var(--text-muted);
-    padding: 4px 10px; cursor: pointer; font-size: 12px;
-    transition: all 0.2s;
-    font-family: 'Noto Sans TC', sans-serif;
-  }
-  .paper-action-btn:hover { border-color: var(--text-muted); color: var(--text); }
-  .paper-action-btn.saved { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+.tab-panel { display: none; animation: fadeIn .2s ease; }
+.tab-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
-  /* Tweet card */
-  .tweet-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 16px 20px;
-    margin-bottom: 10px;
-    transition: border-color 0.2s;
-  }
-  .tweet-card:hover { border-color: #4ea2e8; }
-  .tweet-header {
-    display: flex; align-items: center; gap: 10px;
-    margin-bottom: 10px;
-  }
-  .tweet-avatar {
-    width: 34px; height: 34px;
-    border-radius: 50%;
-    background: linear-gradient(135deg, #1da1f2, #0d84d0);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; font-weight: 700; color: white;
-    flex-shrink: 0;
-  }
-  .tweet-user-name { font-weight: 600; font-size: 13px; }
-  .tweet-handle { font-size: 12px; color: var(--text-muted); }
-  .tweet-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-dim); margin-left: auto; }
-  .tweet-text { font-size: 13px; line-height: 1.7; color: var(--text); }
-  .tweet-text a { color: #4ea2e8; text-decoration: none; }
-  .tweet-stats {
-    display: flex; gap: 14px; margin-top: 10px;
-  }
-  .tweet-stat { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+/* Empty state */
+.empty {
+  text-align: center;
+  padding: 56px 24px;
+  color: var(--ink-3);
+}
+.empty-icon { font-size: 2.4rem; margin-bottom: 12px; opacity: .4; }
+.empty-title { font-family: var(--serif); font-size: 1rem; color: var(--ink-2); margin-bottom: 6px; }
+.empty-sub { font-size: .82rem; }
 
-  /* Summary panel */
-  .summary-box {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 20px 22px;
-    line-height: 1.8;
-    font-size: 13.5px;
-    color: var(--text);
-  }
-  .summary-box h4 {
-    font-family: 'Playfair Display', serif;
-    font-size: 15px;
-    color: var(--green);
-    margin-top: 14px;
-    margin-bottom: 6px;
-  }
-  .summary-box h4:first-child { margin-top: 0; }
-  .summary-box p { color: var(--text-muted); margin-bottom: 10px; }
-  .summary-box ul { padding-left: 18px; color: var(--text-muted); }
-  .summary-box li { margin-bottom: 5px; }
+/* ── Paper card ── */
+.paper-card {
+  border-bottom: 1px solid var(--rule);
+  padding: 18px 0;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 12px;
+  align-items: start;
+}
+.paper-card:first-child { padding-top: 8px; }
 
-  /* Loading skeleton */
-  .skeleton {
-    background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    border-radius: 6px;
-  }
-  @keyframes shimmer { to { background-position: -200% 0; } }
+.p-meta {
+  display: flex; align-items: center; gap: 7px;
+  margin-bottom: 5px; flex-wrap: wrap;
+}
+.p-src {
+  font-family: var(--mono);
+  font-size: .65rem;
+  letter-spacing: .4px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  font-weight: 500;
+}
+.src-pm   { background: var(--accent-dim); color: var(--accent); }
+.src-ax   { background: var(--info-dim); color: var(--info); }
+.src-cr   { background: #f3eeff; color: #6a3fbf; }
+.src-bx   { background: var(--warn-dim); color: var(--warn); }
+.src-cross{ background: var(--amber-dim); color: var(--amber); }
 
-  .skeleton-card {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 20px;
-    margin-bottom: 10px;
-  }
-  .sk-line { height: 13px; margin-bottom: 8px; }
-  .sk-line.w-30 { width: 30%; }
-  .sk-line.w-60 { width: 60%; }
-  .sk-line.w-80 { width: 80%; }
-  .sk-line.w-100 { width: 100%; }
-  .sk-line.h-tall { height: 50px; }
+.p-date { font-family: var(--mono); font-size: .7rem; color: var(--ink-3); }
+.p-journal { font-size: .72rem; color: var(--ink-3); font-style: italic; }
 
-  /* Empty state */
-  .empty-state {
-    text-align: center; padding: 60px 30px;
-    color: var(--text-muted);
-  }
-  .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
-  .empty-title { font-size: 16px; margin-bottom: 8px; color: var(--text-dim); }
-  .empty-sub { font-size: 13px; }
+.p-title {
+  font-family: var(--serif);
+  font-size: .95rem;
+  line-height: 1.45;
+  margin-bottom: 4px;
+}
+.p-title a { color: var(--ink); text-decoration: none; }
+.p-title a:hover { color: var(--accent); text-decoration: underline; }
 
-  /* Toast */
-  .toast {
-    position: fixed; bottom: 24px; right: 24px;
-    background: var(--surface2);
-    border: 1px solid var(--green);
-    border-radius: var(--radius);
-    padding: 12px 18px;
-    color: var(--text);
-    font-size: 13px;
-    z-index: 999;
-    transform: translateX(120%);
-    transition: transform 0.3s ease;
-    display: flex; align-items: center; gap: 8px;
-  }
-  .toast.show { transform: translateX(0); }
+.p-authors { font-size: .78rem; color: var(--ink-3); margin-bottom: 6px; }
 
-  /* Saved notes area */
-  .notes-area {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text);
-    padding: 12px;
-    font-family: 'Noto Sans TC', sans-serif;
-    font-size: 13px;
-    min-height: 100px;
-    resize: vertical;
-    outline: none;
-    line-height: 1.7;
-  }
-  .notes-area:focus { border-color: var(--green); }
+.p-abstract {
+  font-size: .8rem;
+  color: var(--ink-2);
+  line-height: 1.7;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.p-abstract.exp { -webkit-line-clamp: unset; }
 
-  /* Tab panels */
-  .tab-panel { display: none; }
-  .tab-panel.active { display: block; }
+/* Quality bar */
+.q-bar {
+  display: flex; flex-wrap: wrap; gap: 5px;
+  margin-top: 8px;
+}
+.q-chip {
+  font-family: var(--mono);
+  font-size: .65rem;
+  padding: 2px 7px;
+  border-radius: 20px;
+  border: 1px solid var(--rule);
+  color: var(--ink-3);
+  background: var(--bg);
+}
+.q-chip.hi  { background: var(--accent-dim); border-color: rgba(45,106,79,.2); color: var(--accent); }
+.q-chip.mid { background: var(--info-dim); border-color: rgba(29,78,137,.15); color: var(--info); }
+.q-chip.oa  { background: var(--accent-dim); border-color: rgba(45,106,79,.2); color: var(--accent); }
+.q-chip.ret { background: var(--warn-dim); border-color: rgba(181,69,27,.2); color: var(--warn); font-weight: 700; }
+.q-chip.loading { animation: shimmer 1.2s infinite; background: linear-gradient(90deg,#f0efed 25%,#e8e6e3 50%,#f0efed 75%); background-size:200% 100%; border-color:transparent; color:transparent; width:60px; }
+@keyframes shimmer { to { background-position: -200% 0; } }
 
-  /* Highlight */
-  mark {
-    background: rgba(63,185,80,0.2);
-    color: var(--green);
-    padding: 1px 3px;
-    border-radius: 3px;
-  }
+/* Paper right column */
+.p-actions {
+  display: flex; flex-direction: column; align-items: flex-end; gap: 6px;
+  padding-top: 2px;
+}
+.p-btn {
+  font-family: var(--mono);
+  font-size: .68rem;
+  padding: 3px 9px;
+  border-radius: 20px;
+  border: 1px solid var(--rule);
+  background: none;
+  color: var(--ink-3);
+  cursor: pointer;
+  transition: all .15s;
+  white-space: nowrap;
+}
+.p-btn:hover { border-color: var(--ink-3); color: var(--ink); }
+.p-btn.saved { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); }
+.p-btn.expand { color: var(--ink-4); }
 
-  /* Reading list counter */
-  .rl-badge {
-    background: var(--amber);
-    color: #0d1117;
-    border-radius: 20px;
-    padding: 1px 7px;
-    font-size: 11px;
-    font-weight: 700;
-    margin-left: 6px;
-  }
+mark { background: rgba(82,183,136,.25); color: inherit; border-radius: 2px; padding: 0 2px; }
 
-  /* Progress bar */
-  .progress-bar-wrap {
-    height: 3px; background: var(--border); border-radius: 2px;
-    overflow: hidden; margin-top: 6px;
-  }
-  .progress-bar { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.5s; }
+/* ── AI Summary box ── */
+.ai-box {
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  padding: 22px 26px;
+  line-height: 1.8;
+}
+.ai-box h3 {
+  font-family: var(--serif);
+  font-size: .95rem;
+  color: var(--accent);
+  margin-top: 18px;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--accent-dim);
+}
+.ai-box h3:first-child { margin-top: 0; }
+.ai-box p { font-size: .85rem; color: var(--ink-2); margin-bottom: 8px; }
+.ai-box ul { padding-left: 16px; }
+.ai-box li { font-size: .85rem; color: var(--ink-2); margin-bottom: 4px; }
 
-  /* Compact layout for saved list */
-  .saved-card {
-    display: flex; gap: 12px;
-    background: var(--surface); border: 1px solid var(--border);
-    border-radius: var(--radius); padding: 12px 16px;
-    margin-bottom: 8px; align-items: flex-start;
-  }
-  .saved-card-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
-  .saved-card-body { flex: 1; min-width: 0; }
-  .saved-card-title { font-size: 13px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .saved-card-meta { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
-  .saved-card-link { font-size: 12px; color: var(--blue); text-decoration: none; }
-  .saved-card-link:hover { text-decoration: underline; }
+/* ── Gap card ── */
+.gap-card {
+  background: var(--amber-dim);
+  border: 1px solid rgba(146,88,10,.15);
+  border-radius: var(--r-lg);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+}
+.gap-title { font-family: var(--serif); font-size: .9rem; color: var(--amber); margin-bottom: 5px; }
+.gap-body { font-size: .82rem; color: var(--ink-2); line-height: 1.7; }
+.gap-chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 8px; }
+.gap-chip { font-family: var(--mono); font-size: .65rem; padding: 2px 7px; border-radius: 20px; background: rgba(146,88,10,.08); color: var(--amber); border: 1px solid rgba(146,88,10,.15); }
 
-  /* API Key Input */
-  .api-key-section {
-    background: var(--surface);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-lg);
-    padding: 18px 20px;
-    margin-bottom: 20px;
-  }
-  .api-key-title { font-size: 13px; font-weight: 600; color: var(--amber); margin-bottom: 6px; }
-  .api-key-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.6; }
-  .api-key-input {
-    width: 100%;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    color: var(--text);
-    padding: 8px 12px;
-    font-family: 'DM Mono', monospace;
-    font-size: 12px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-  .api-key-input:focus { border-color: var(--amber); }
+/* ── Cross card ── */
+.cross-card {
+  border-bottom: 1px solid var(--rule);
+  padding: 16px 0;
+  border-left: 3px solid var(--info);
+  padding-left: 14px;
+}
 
-  #crossDomainToggle { display:flex; align-items:center; cursor:pointer; }
-  #crossDomainToggle.active .toggle-switch { background: var(--blue); }
-  #crossDomainToggle .toggle-switch::after { content:''; position:absolute; width:12px; height:12px; background:white; border-radius:50%; top:2px; left:2px; transition:transform 0.2s; }
-  #crossDomainToggle.active .toggle-switch::after { transform: translateX(14px); }
+/* ── Network ── */
+#net-svg { width: 100%; height: 500px; cursor: grab; background: var(--surface); border-radius: var(--r-lg); border: 1px solid var(--rule); }
+#net-svg:active { cursor: grabbing; }
+.net-controls { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px; }
+.net-legend { display: flex; gap: 16px; margin-top: 10px; flex-wrap: wrap; }
+.leg-item { display: flex; align-items: center; gap: 5px; font-family: var(--mono); font-size: .68rem; color: var(--ink-3); }
+.leg-dot { width: 8px; height: 8px; border-radius: 50%; }
+#node-tip {
+  position: fixed; background: var(--surface); border: 1px solid var(--rule);
+  border-radius: var(--r-lg); padding: 12px 14px; font-size: .78rem;
+  max-width: 260px; pointer-events: none; z-index: 999; display: none;
+  line-height: 1.6; color: var(--ink); box-shadow: 0 4px 16px rgba(0,0,0,.08);
+}
 
-  #crossDomainToggle { display:flex; align-items:center; cursor:pointer; }
-  #crossDomainToggle.active .toggle-switch { background: var(--blue); }
-  #crossDomainToggle .toggle-switch::after { content:''; position:absolute; width:12px; height:12px; background:white; border-radius:50%; top:2px; left:2px; transition:transform 0.2s; }
-  #crossDomainToggle.active .toggle-switch::after { transform: translateX(14px); }
+/* ── Saved / Notes ── */
+.saved-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--rule);
+}
+.saved-row:last-child { border-bottom: none; }
+.saved-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; opacity: .6; }
+.saved-title { font-size: .85rem; font-weight: 500; color: var(--ink); margin-bottom: 2px; }
+.saved-meta { font-family: var(--mono); font-size: .68rem; color: var(--ink-3); }
+.saved-link { font-family: var(--mono); font-size: .7rem; color: var(--info); text-decoration: none; }
+.saved-link:hover { text-decoration: underline; }
 
-  /* ─── Quality indicators ─── */
-  .quality-bar {
-    display: flex; align-items: center; gap: 6px;
-    margin: 6px 0 4px;
-    flex-wrap: wrap;
-  }
-  .cite-badge {
-    display: inline-flex; align-items: center; gap: 4px;
-    font-family: 'DM Mono', monospace; font-size: 11px;
-    padding: 2px 8px; border-radius: 20px;
-    background: var(--surface2); border: 1px solid var(--border);
-    color: var(--text-muted); cursor: default;
-    transition: border-color 0.2s;
-  }
-  .cite-badge.high { background: rgba(63,185,80,0.1); border-color: rgba(63,185,80,0.35); color: var(--green); }
-  .cite-badge.med  { background: rgba(88,166,255,0.1); border-color: rgba(88,166,255,0.3); color: var(--blue); }
-  .cite-badge.low  { background: var(--surface2); color: var(--text-dim); }
-  .cite-badge.loading { animation: shimmer 1.5s infinite; background-size:200% 100%;
-    background: linear-gradient(90deg, var(--surface2) 25%, var(--surface) 50%, var(--surface2) 75%); }
-  .oa-badge { background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.2); color: var(--green); }
-  .retract-badge { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); color: var(--red); font-weight:700; }
-  .quartile-badge { font-family:'DM Mono',monospace; font-size:10px; padding:2px 7px; border-radius:20px; }
-  .q1 { background:rgba(63,185,80,0.15); color:var(--green); border:1px solid rgba(63,185,80,0.3); }
-  .q2 { background:rgba(88,166,255,0.1); color:var(--blue); border:1px solid rgba(88,166,255,0.25); }
-  .q3 { background:rgba(210,153,34,0.1); color:var(--amber); border:1px solid rgba(210,153,34,0.25); }
-  .q4 { background:rgba(248,81,73,0.08); color:var(--red); border:1px solid rgba(248,81,73,0.2); }
+.notes-ta {
+  width: 100%;
+  min-height: 320px;
+  border: 1px solid var(--rule);
+  border-radius: var(--r-lg);
+  padding: 16px;
+  font-family: var(--mono);
+  font-size: .82rem;
+  color: var(--ink);
+  background: var(--surface);
+  outline: none;
+  resize: vertical;
+  line-height: 1.8;
+  transition: border-color .15s;
+}
+.notes-ta:focus { border-color: var(--accent); }
 
-  /* ─── Network panel ─── */
-  #network-svg { width:100%; height:520px; cursor:grab; }
-  #network-svg:active { cursor:grabbing; }
-  .network-controls {
-    display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap;
-  }
-  .network-legend {
-    display:flex; gap:14px; font-size:11px; color:var(--text-muted);
-    font-family:'DM Mono',monospace; flex-wrap:wrap; margin-top:10px;
-  }
-  .legend-dot { width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:4px; }
-  #nodeTooltip {
-    position:fixed; background:var(--surface2); border:1px solid var(--border);
-    border-radius:var(--radius); padding:10px 14px; font-size:12px;
-    max-width:280px; pointer-events:none; z-index:999; display:none;
-    line-height:1.6; color:var(--text);
-  }
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 22px; right: 22px;
+  background: var(--ink);
+  color: #fff;
+  font-size: .8rem;
+  padding: 9px 16px;
+  border-radius: 20px;
+  z-index: 999;
+  transform: translateY(60px);
+  opacity: 0;
+  transition: all .25s ease;
+  font-family: var(--sans);
+}
+.toast.show { transform: translateY(0); opacity: 1; }
 
-  /* Responsive */
-  @media (max-width: 900px) {
-    main { grid-template-columns: 1fr; }
-    aside { min-height: auto; border-right: none; border-bottom: 1px solid var(--border); }
-    .stats-bar { grid-template-columns: repeat(2,1fr); }
-  }
+/* ── Skeleton ── */
+.sk-card { padding: 18px 0; border-bottom: 1px solid var(--rule); }
+.sk-line { height: 12px; border-radius: 3px; background: linear-gradient(90deg,#ece9e4 25%,#e4e0da 50%,#ece9e4 75%); background-size:200% 100%; animation: shimmer 1.2s infinite; margin-bottom: 8px; }
+.sk-line.w20{width:20%;} .sk-line.w40{width:40%;} .sk-line.w60{width:60%;} .sk-line.w80{width:80%;} .sk-line.w100{width:100%;} .sk-line.tall{height:40px;}
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--rule); border-radius: 3px; }
+
+/* ── AI model badge ── */
+.model-badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  font-family: var(--mono); font-size: .62rem;
+  color: var(--ink-3); letter-spacing: .3px;
+}
+.model-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent-mid); }
 </style>
 </head>
 <body>
-<div class="app">
 
-  <!-- Header -->
-  <header>
-    <div class="logo">
-      <span class="logo-name">Phyto<span>Scholar</span></span>
-      <span class="logo-tag">β · 植物科學研究助理</span>
+<!-- Top bar -->
+<header class="topbar">
+  <div class="brand">
+    Phyto<span class="brand-dot">Scholar</span>
+    <span class="brand-tag">植物科學研究助理 · β</span>
+  </div>
+  <div class="topbar-actions">
+    <div class="model-badge"><span class="model-dot"></span><span id="modelLabel">Gemini 2.0 Flash · 免費</span></div>
+    <div class="status-pip" id="pip"></div>
+    <button class="pill" onclick="exportReport()">匯出</button>
+    <button class="pill pill-accent" onclick="runSearch()" id="topRunBtn">搜尋</button>
+  </div>
+</header>
+
+<div class="shell">
+
+<!-- Sidebar -->
+<aside>
+
+  <!-- Keywords -->
+  <div>
+    <div class="s-section-label">研究關鍵字</div>
+    <div class="kw-row">
+      <input class="kw-input" id="kwInput" placeholder="輸入後按 Enter 或 +"
+             onkeydown="if(event.key==='Enter')addKw()">
+      <button class="add-btn" onclick="addKw()">+</button>
     </div>
-    <div class="header-right">
-      <div class="status-dot" id="statusDot"></div>
-      <span id="statusText" style="font-size:12px;color:var(--text-muted)">待機中</span>
-      <button class="btn" onclick="exportReport()">📥 匯出報告</button>
+    <div class="kw-chips" id="kwChips"></div>
+  </div>
+
+  <!-- Sources -->
+  <div>
+    <div class="s-section-label">資料來源</div>
+    <div class="src-row" onclick="toggleSrc('pubmed')" id="s-pubmed">
+      <div class="src-info"><span class="src-icon">🧬</span>PubMed / NCBI</div>
+      <div class="tog on" id="tog-pubmed"></div>
     </div>
-  </header>
+    <div class="src-row" onclick="toggleSrc('arxiv')" id="s-arxiv">
+      <div class="src-info"><span class="src-icon">📄</span>arXiv</div>
+      <div class="tog on" id="tog-arxiv"></div>
+    </div>
+    <div class="src-row" onclick="toggleSrc('crossref')" id="s-crossref">
+      <div class="src-info"><span class="src-icon">📚</span>CrossRef</div>
+      <div class="tog on" id="tog-crossref"></div>
+    </div>
+    <div class="src-row" onclick="toggleSrc('biorxiv')" id="s-biorxiv">
+      <div class="src-info"><span class="src-icon">🧪</span>bioRxiv</div>
+      <div class="tog on" id="tog-biorxiv"></div>
+    </div>
+    <div style="font-size:.7rem;color:var(--ink-4);margin-top:8px;">全部免費開放 API，無需帳號</div>
+  </div>
 
-  <main>
-    <!-- Sidebar -->
-    <aside>
-      <div>
-        <div class="section-label">🔬 研究關鍵字</div>
-        <div class="keyword-input-wrap">
-          <input class="keyword-input" id="kwInput" placeholder="輸入關鍵字..." 
-                 onkeydown="if(event.key==='Enter')addKeyword()">
-          <button class="keyword-add-btn" onclick="addKeyword()">+</button>
-        </div>
-        <div class="keyword-tags" id="kwTags"></div>
+  <!-- AI -->
+  <div>
+    <div class="collapsible-hd" onclick="toggleSection('ai-section')">
+      <div class="s-section-label" style="margin:0;">AI 分析設定</div>
+      <span class="chevron" id="chev-ai-section">▼</span>
+    </div>
+    <div class="collapsible-body" id="ai-section">
+      <div style="font-size:.72rem;color:var(--ink-3);margin-bottom:8px;line-height:1.6;">
+        使用 <strong>Google Gemini 免費版</strong>（每天 1,500 次，無需信用卡）<br>
+        取得：<a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--info);">aistudio.google.com</a> → Get API Key
       </div>
+      <input class="api-input" type="password" id="geminiKey" placeholder="選填：AIza..." oninput="saveKey()">
+      <div class="api-note" id="aiStatus">未設定 · 文獻搜尋仍可正常使用</div>
+      <div style="margin-top:12px;font-size:.72rem;color:var(--ink-3);line-height:1.6;">
+        也可使用 Anthropic Claude（付費）：
+      </div>
+      <input class="api-input" type="password" id="claudeKey" placeholder="選填：sk-ant-..." oninput="saveKey()" style="margin-top:5px;">
+    </div>
+  </div>
 
-      <!-- Cross-domain search panel -->
-      <div id="crossDomainPanel">
-        <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;">
-          <span>🔬 跨界搜尋</span>
-          <div class="source-toggle active" id="crossDomainToggle" onclick="toggleCrossDomain()"
-               style="border:none;background:none;padding:0;margin:0;width:auto;">
-            <div class="toggle-switch" style="margin:0;"></div>
-          </div>
-        </div>
-        <div id="crossDomainBody" style="margin-top:8px;">
-          <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;line-height:1.6;">
-            自動同步搜尋動物／微生物中相同機制的研究，供跨物種比較
-          </div>
-          <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">搜尋物種範圍：</div>
-          <div id="orgTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;"></div>
-          <div style="display:flex;gap:6px;">
-            <input class="keyword-input" id="orgInput" placeholder="新增物種／領域..." 
-                   style="font-size:12px;padding:6px 10px;"
-                   onkeydown="if(event.key==='Enter')addOrganism()">
-            <button class="keyword-add-btn" onclick="addOrganism()" style="width:28px;height:28px;font-size:14px;">+</button>
-          </div>
-        </div>
+  <!-- Cross-domain -->
+  <div>
+    <div class="collapsible-hd" onclick="toggleSection('cross-section')">
+      <div class="s-section-label" style="margin:0;">跨界搜尋</div>
+      <span class="chevron" id="chev-cross-section">▼</span>
+    </div>
+    <div class="collapsible-body" id="cross-section">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;">
+        <span style="font-size:.8rem;color:var(--ink-2);">自動比對動物／微生物文獻</span>
+        <div class="tog on" id="tog-cross" onclick="toggleCross()"></div>
       </div>
-        <div class="section-label">📡 資料來源</div>
-        <div class="source-toggle active" id="src-pubmed" onclick="toggleSource('pubmed')">
-          <div class="source-info">
-            <span class="source-icon">🧬</span>
-            <span class="source-name">PubMed / NCBI</span>
-          </div>
-          <div class="toggle-switch"></div>
-        </div>
-        <div class="source-toggle active" id="src-arxiv" onclick="toggleSource('arxiv')">
-          <div class="source-info">
-            <span class="source-icon">📄</span>
-            <span class="source-name">arXiv</span>
-          </div>
-          <div class="toggle-switch"></div>
-        </div>
-        <div class="source-toggle active" id="src-crossref" onclick="toggleSource('crossref')">
-          <div class="source-info">
-            <span class="source-icon">📚</span>
-            <span class="source-name">CrossRef 期刊</span>
-          </div>
-          <div class="toggle-switch"></div>
-        </div>
-        <div class="source-toggle active" id="src-biorxiv" onclick="toggleSource('biorxiv')">
-          <div class="source-info">
-            <span class="source-icon">🧪</span>
-            <span class="source-name">bioRxiv 預印本</span>
-          </div>
-          <div class="toggle-switch"></div>
-        </div>
-        <div class="source-toggle active" id="src-twitter" onclick="toggleSource('twitter')">
-          <div class="source-info">
-            <span class="source-icon">🐦</span>
-            <span class="source-name">X (Twitter) 學術圈</span>
-          </div>
-          <div class="toggle-switch"></div>
-        </div>
-        <div class="source-toggle" id="src-semantic" onclick="toggleSource('semantic')">
-          <div class="source-info">
-            <span class="source-icon">🧠</span>
-            <span class="source-name">Semantic Scholar</span>
-          </div>
-          <div class="toggle-switch"></div>
-        </div>
-        <div style="font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.6;">
-          ℹ️ PubMed / arXiv / CrossRef / bioRxiv 均為免費開放 API。Twitter 需後端授權。
-        </div>
+      <div id="org-chips" class="kw-chips" style="margin-bottom:8px;"></div>
+      <div class="kw-row">
+        <input class="kw-input" id="orgInput" placeholder="新增物種..." onkeydown="if(event.key==='Enter')addOrg()" style="font-size:.78rem;">
+        <button class="add-btn" onclick="addOrg()" style="width:28px;height:28px;font-size:.9rem;">+</button>
       </div>
+    </div>
+  </div>
 
-      <div>
-        <div class="section-label">⚙️ Anthropic API Key <span style="color:var(--text-dim);font-size:9px;letter-spacing:0;">（選填）</span></div>
-        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;line-height:1.6;">
-          用於 AI 摘要、研究缺口、跨界分析。不填仍可正常搜尋文獻。<br>
-          取得：<a href="https://console.anthropic.com" target="_blank" style="color:var(--blue);text-decoration:none;">console.anthropic.com</a> → API Keys
-        </div>
-        <input class="api-key-input" type="password" id="apiKeyInput" placeholder="選填：sk-ant-api03-..." 
-               oninput="saveApiKey(this.value)">
+  <!-- Settings -->
+  <div>
+    <div class="collapsible-hd" onclick="toggleSection('set-section')">
+      <div class="s-section-label" style="margin:0;">搜尋設定</div>
+      <span class="chevron" id="chev-set-section">▼</span>
+    </div>
+    <div class="collapsible-body" id="set-section">
+      <div style="font-size:.75rem;color:var(--ink-3);margin-bottom:6px;">論文數量上限</div>
+      <div class="range-row">
+        <input type="range" id="limitSlider" min="5" max="50" value="20"
+               oninput="document.getElementById('limitVal').textContent=this.value">
+        <span class="range-val" id="limitVal">20</span>
       </div>
+    </div>
+  </div>
 
-      <div>
-        <div class="section-label">🕐 自動更新排程</div>
-        <select class="schedule-select" id="scheduleSelect">
-          <option value="manual">手動執行</option>
-          <option value="daily" selected>每日一次</option>
-          <option value="twice">每日兩次</option>
-          <option value="weekly">每週一次</option>
+  <button class="run-btn" id="runBtn" onclick="runSearch()">
+    <div class="spinner"></div>
+    <span id="runBtnTxt">開始搜尋</span>
+  </button>
+
+</aside>
+
+<!-- Main -->
+<main>
+
+  <!-- Stats -->
+  <div class="stats-strip">
+    <div class="stat-cell">
+      <div class="stat-lbl">Papers</div>
+      <div class="stat-val info" id="statP">0</div>
+      <div class="stat-sub">本次搜尋</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-lbl">Gaps</div>
+      <div class="stat-val warn" id="statG">0</div>
+      <div class="stat-sub">研究缺口</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-lbl">Saved</div>
+      <div class="stat-val accent" id="statS">0</div>
+      <div class="stat-sub">閱讀清單</div>
+    </div>
+    <div class="stat-cell">
+      <div class="stat-lbl">Updated</div>
+      <div class="stat-val" id="statT" style="font-size:.95rem;color:var(--ink-3);margin-top:3px;">—</div>
+      <div class="stat-sub">最後更新</div>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div>
+    <div class="tab-bar">
+      <button class="tab-btn active" onclick="switchTab('overview')">總覽</button>
+      <button class="tab-btn" onclick="switchTab('papers')">期刊論文 <span id="pCount" style="font-family:var(--mono);font-size:.7rem;"></span></button>
+      <button class="tab-btn" onclick="switchTab('cross')">跨界比較</button>
+      <button class="tab-btn" onclick="switchTab('network')">引用網絡</button>
+      <button class="tab-btn" onclick="switchTab('gaps')">研究缺口</button>
+      <button class="tab-btn" onclick="switchTab('saved')">閱讀清單 <span id="rlBadge" style="font-family:var(--mono);font-size:.7rem;color:var(--accent);"></span></button>
+      <button class="tab-btn" onclick="switchTab('notes')">筆記</button>
+    </div>
+
+    <!-- Overview -->
+    <div class="tab-panel active" id="panel-overview" style="padding-top:20px;">
+      <div class="empty" id="overviewEmpty">
+        <div class="empty-icon">🌿</div>
+        <div class="empty-title">歡迎使用 PhytoScholar</div>
+        <div class="empty-sub">輸入關鍵字，點擊「開始搜尋」<br>AI 自動整理文獻並分析研究缺口</div>
+      </div>
+      <div id="overviewContent" style="display:none;">
+        <div class="ai-box" id="aiBox"></div>
+      </div>
+    </div>
+
+    <!-- Papers -->
+    <div class="tab-panel" id="panel-papers" style="padding-top:16px;">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+        <select id="sortSel" onchange="sortPapers()" style="font-family:var(--mono);font-size:.75rem;border:1px solid var(--rule);border-radius:var(--r);padding:4px 8px;background:var(--surface);color:var(--ink);outline:none;">
+          <option value="date">按日期</option>
+          <option value="cites">按被引次數</option>
+          <option value="title">按標題</option>
         </select>
-        <div id="nextRunLabel" style="font-size:11px;color:var(--text-dim);margin-top:6px;"></div>
       </div>
-
-      <div>
-        <div class="section-label">📊 論文數量上限</div>
-        <div style="display:flex;align-items:center;gap:10px;">
-          <input type="range" id="limitSlider" min="5" max="50" value="20" 
-                 oninput="document.getElementById('limitVal').textContent=this.value"
-                 style="flex:1;accent-color:var(--green);">
-          <span id="limitVal" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--green);width:28px;">20</span>
-        </div>
-      </div>
-
-      <button class="run-btn" id="runBtn" onclick="runSearch()">
-        <div class="spinner"></div>
-        <span id="runBtnText">🚀 開始收集研究資料</span>
-      </button>
-    </aside>
-
-    <!-- Main content -->
-    <div class="content">
-
-      <!-- Stats bar -->
-      <div class="stats-bar">
-        <div class="stat-card">
-          <div class="stat-label">PAPERS FOUND</div>
-          <div class="stat-value blue" id="statPapers">0</div>
-          <div class="stat-sub">本次搜尋結果</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">RESEARCH GAPS</div>
-          <div class="stat-value amber" id="statGaps">0</div>
-          <div class="stat-sub">AI 偵測缺口</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">SAVED</div>
-          <div class="stat-value green" id="statSaved">0</div>
-          <div class="stat-sub">已儲存至閱讀清單</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">LAST RUN</div>
-          <div class="stat-value" id="statTime" style="font-size:14px;margin-top:4px;color:var(--text-muted)">—</div>
-          <div class="stat-sub">最後更新時間</div>
-        </div>
-      </div>
-
-      <!-- Tabs -->
-      <div>
-        <div class="tabs">
-          <div class="tab active" onclick="switchTab('overview')">📋 AI 摘要總覽</div>
-          <div class="tab" onclick="switchTab('papers')">📄 期刊論文</div>
-          <div class="tab" onclick="switchTab('cross')">🔬 跨界比較</div>
-          <div class="tab" onclick="switchTab('network')">🕸️ 引用網絡</div>
-          <div class="tab" onclick="switchTab('twitter')">🐦 學術社群討論</div>
-          <div class="tab" onclick="switchTab('gaps')">🔍 研究缺口分析</div>
-          <div class="tab" onclick="switchTab('saved')">🔖 閱讀清單 <span class="rl-badge" id="rlBadge">0</span></div>
-          <div class="tab" onclick="switchTab('notes')">📝 筆記</div>
-        </div>
-
-        <!-- Overview Tab -->
-        <div class="tab-panel active" id="panel-overview" style="padding-top:20px;">
-          <div class="empty-state" id="overviewEmpty">
-            <div class="empty-icon">🌿</div>
-            <div class="empty-title">歡迎使用 PhytoScholar</div>
-            <div class="empty-sub">在左側輸入研究關鍵字，點擊「開始收集研究資料」<br>AI 將自動整理文獻並分析研究缺口</div>
-          </div>
-          <div id="overviewContent" style="display:none;">
-            <div class="summary-box" id="summaryBox"></div>
-          </div>
-        </div>
-
-        <!-- Cross-domain Tab -->
-        <div class="tab-panel" id="panel-cross" style="padding-top:20px;">
-          <div class="section-header">
-            <div class="section-title">跨界文獻比較 <small id="crossCount"></small></div>
-          </div>
-          <div id="crossAIBox" style="display:none;margin-bottom:20px;">
-            <div class="summary-box" id="crossAISummary"></div>
-          </div>
-          <div id="crossList">
-            <div class="empty-state">
-              <div class="empty-icon">🔬</div>
-              <div class="empty-title">尚無跨界資料</div>
-              <div class="empty-sub">啟用跨界搜尋並執行後，將在此顯示動物／微生物相關文獻</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Network Tab -->
-        <div class="tab-panel" id="panel-network" style="padding-top:20px;">
-          <div class="section-header">
-            <div class="section-title">引用網絡圖</div>
-            <div style="display:flex;gap:8px;">
-              <button class="btn" onclick="resetNetworkZoom()" style="font-size:12px;padding:5px 12px;">重置視角</button>
-              <button class="btn btn-primary" onclick="buildNetwork()" style="font-size:12px;padding:5px 12px;">重新產生</button>
-            </div>
-          </div>
-          <div id="networkEmpty" class="empty-state">
-            <div class="empty-icon">🕸️</div>
-            <div class="empty-title">尚無網絡資料</div>
-            <div class="empty-sub">執行搜尋後，點擊「重新產生」即可建立引用關係圖<br>節點大小代表被引次數，顏色代表來源資料庫</div>
-          </div>
-          <div id="networkContent" style="display:none;">
-            <div class="network-controls">
-              <span style="font-size:12px;color:var(--text-muted);">拖曳移動・滾輪縮放・點擊節點查看詳情</span>
-              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;">
-                <input type="checkbox" id="showLabels" checked onchange="toggleLabels()" style="accent-color:var(--green);"> 顯示標籤
-              </label>
-              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;">
-                最少引用次數
-                <input type="range" id="minCiteFilter" min="0" max="500" value="0" style="width:80px;accent-color:var(--green);" oninput="filterNetworkByCites(this.value)">
-                <span id="minCiteVal" style="font-family:'DM Mono',monospace;color:var(--green);width:30px;">0</span>
-              </label>
-            </div>
-            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;position:relative;">
-              <svg id="network-svg"></svg>
-            </div>
-            <div class="network-legend">
-              <span><span class="legend-dot" style="background:#3fb950;"></span>PubMed</span>
-              <span><span class="legend-dot" style="background:#58a6ff;"></span>arXiv</span>
-              <span><span class="legend-dot" style="background:#bc8cff;"></span>CrossRef</span>
-              <span><span class="legend-dot" style="background:#e07840;"></span>bioRxiv</span>
-              <span><span class="legend-dot" style="background:var(--text-dim);"></span>節點大小 = 被引次數</span>
-            </div>
-            <div id="networkStats" style="margin-top:12px;font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;"></div>
-          </div>
-        </div>
-
-        <!-- Papers Tab -->
-        <div class="tab-panel" id="panel-papers" style="padding-top:20px;">
-          <div class="section-header">
-            <div class="section-title">期刊論文 <small id="paperCount"></small></div>
-            <div style="display:flex;gap:8px;">
-              <select id="sortSelect" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:5px 10px;font-size:12px;outline:none;" onchange="sortPapers()">
-                <option value="date">按日期排序</option>
-                <option value="title">按標題排序</option>
-              </select>
-            </div>
-          </div>
-          <div id="papersList">
-            <div class="empty-state">
-              <div class="empty-icon">📄</div>
-              <div class="empty-title">尚無論文資料</div>
-              <div class="empty-sub">請先執行搜尋</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Twitter Tab -->
-        <div class="tab-panel" id="panel-twitter" style="padding-top:20px;">
-          <div class="section-header">
-            <div class="section-title">學術社群討論</div>
-          </div>
-          <div id="twitterList">
-            <div class="empty-state">
-              <div class="empty-icon">🐦</div>
-              <div class="empty-title">尚無社群資料</div>
-              <div class="empty-sub">搜尋後將顯示 X (Twitter) 學術討論</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Gaps Tab -->
-        <div class="tab-panel" id="panel-gaps" style="padding-top:20px;">
-          <div id="gapsList">
-            <div class="empty-state">
-              <div class="empty-icon">🔍</div>
-              <div class="empty-title">研究缺口分析</div>
-              <div class="empty-sub">AI 將在搜尋完成後自動分析現有研究缺口</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Saved Tab -->
-        <div class="tab-panel" id="panel-saved" style="padding-top:20px;">
-          <div class="section-header">
-            <div class="section-title">閱讀清單</div>
-            <button class="btn" onclick="clearSaved()" style="font-size:12px;padding:5px 12px;">清空</button>
-          </div>
-          <div id="savedList">
-            <div class="empty-state">
-              <div class="empty-icon">🔖</div>
-              <div class="empty-title">尚無儲存項目</div>
-              <div class="empty-sub">點擊論文卡片上的「儲存」按鈕即可加入閱讀清單</div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Notes Tab -->
-        <div class="tab-panel" id="panel-notes" style="padding-top:20px;">
-          <div class="section-header">
-            <div class="section-title">研究筆記</div>
-            <div style="display:flex;gap:8px;">
-              <button class="btn" onclick="clearNotes()" style="font-size:12px;padding:5px 12px;">清空</button>
-              <button class="btn btn-primary" onclick="saveNotes()" style="font-size:12px;padding:5px 12px;">儲存</button>
-            </div>
-          </div>
-          <textarea class="notes-area" id="notesArea" placeholder="在此記錄你的研究想法、問題、和觀察...&#10;&#10;提示：可以用 # 標記主題，例如：&#10;# 光合作用機制&#10;- 值得追蹤的論文...&#10;- 需要查清楚的問題..."></textarea>
-          <div style="font-size:11px;color:var(--text-dim);margin-top:8px;">筆記自動儲存於瀏覽器本地端</div>
-        </div>
+      <div id="papersList">
+        <div class="empty"><div class="empty-icon">📄</div><div class="empty-title">尚無論文資料</div><div class="empty-sub">請先執行搜尋</div></div>
       </div>
     </div>
-  </main>
+
+    <!-- Cross -->
+    <div class="tab-panel" id="panel-cross" style="padding-top:16px;">
+      <div id="crossAI" style="display:none;margin-bottom:20px;"><div class="ai-box" id="crossAIBox"></div></div>
+      <div id="crossList">
+        <div class="empty"><div class="empty-icon">🔬</div><div class="empty-title">尚無跨界資料</div><div class="empty-sub">啟用跨界搜尋後執行</div></div>
+      </div>
+    </div>
+
+    <!-- Network -->
+    <div class="tab-panel" id="panel-network" style="padding-top:16px;">
+      <div id="netEmpty" class="empty"><div class="empty-icon">🕸️</div><div class="empty-title">尚無網絡資料</div><div class="empty-sub">搜尋後點擊「建立網絡」</div></div>
+      <div id="netContent" style="display:none;">
+        <div class="net-controls">
+          <button class="pill" onclick="buildNetwork()">重新產生</button>
+          <button class="pill" onclick="resetZoom()">重置視角</button>
+          <label style="display:flex;align-items:center;gap:5px;font-size:.75rem;color:var(--ink-3);cursor:pointer;">
+            <input type="checkbox" id="showLabels" checked onchange="toggleLabels()" style="accent-color:var(--accent);">標籤
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;font-size:.75rem;color:var(--ink-3);">
+            最少引用
+            <input type="range" id="minCite" min="0" max="500" value="0" style="width:70px;accent-color:var(--accent);" oninput="filterNet(this.value)">
+            <span id="minCiteV" style="font-family:var(--mono);font-size:.72rem;color:var(--accent);">0</span>
+          </label>
+        </div>
+        <svg id="net-svg"></svg>
+        <div class="net-legend">
+          <div class="leg-item"><div class="leg-dot" style="background:#2d6a4f;"></div>PubMed</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#1d4e89;"></div>arXiv</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#6a3fbf;"></div>CrossRef</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#b5451b;"></div>bioRxiv</div>
+          <div class="leg-item"><div class="leg-dot" style="background:#888;"></div>節點大小 = 被引次數</div>
+        </div>
+        <div id="netStats" style="font-family:var(--mono);font-size:.7rem;color:var(--ink-3);margin-top:8px;"></div>
+      </div>
+    </div>
+
+    <!-- Gaps -->
+    <div class="tab-panel" id="panel-gaps" style="padding-top:16px;">
+      <div id="gapsList">
+        <div class="empty"><div class="empty-icon">🔍</div><div class="empty-title">研究缺口分析</div><div class="empty-sub">設定 AI Key 並搜尋後自動產生</div></div>
+      </div>
+    </div>
+
+    <!-- Saved -->
+    <div class="tab-panel" id="panel-saved" style="padding-top:16px;">
+      <div style="display:flex;justify-content:flex-end;margin-bottom:8px;">
+        <button class="pill" onclick="clearSaved()">清空</button>
+      </div>
+      <div id="savedList">
+        <div class="empty"><div class="empty-icon">🔖</div><div class="empty-title">閱讀清單是空的</div><div class="empty-sub">點擊論文卡片的「存」按鈕加入</div></div>
+      </div>
+    </div>
+
+    <!-- Notes -->
+    <div class="tab-panel" id="panel-notes" style="padding-top:16px;">
+      <div style="display:flex;justify-content:flex-end;gap:8px;margin-bottom:10px;">
+        <button class="pill" onclick="clearNotes()">清空</button>
+        <button class="pill pill-accent" onclick="saveNotes()">儲存</button>
+      </div>
+      <textarea class="notes-ta" id="notesArea"
+        placeholder="在此記錄研究想法、問題、和觀察...&#10;&#10;# 可以用 # 標記主題&#10;- 值得追蹤的論文&#10;- 待查問題"></textarea>
+      <div style="font-size:.7rem;color:var(--ink-3);margin-top:6px;">每 30 秒自動儲存於瀏覽器本地端</div>
+    </div>
+
+  </div>
+</main>
 </div>
 
-<!-- Toast -->
-<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
-<div id="nodeTooltip"></div>
+<div class="toast" id="toast"></div>
+<div id="node-tip"></div>
 
 <script>
-// ─── State ───
-let state = {
+// ═══════════════════════════════
+// STATE
+// ═══════════════════════════════
+const S = {
   keywords: ['photosynthesis', 'chloroplast'],
-  sources: { pubmed: true, arxiv: true, crossref: true, biorxiv: true, twitter: true, semantic: false },
+  sources: { pubmed:true, arxiv:true, crossref:true, biorxiv:true },
+  crossEnabled: true,
+  crossOrgs: ['animal','mammal','mouse','human'],
   papers: [],
   crossPapers: [],
-  tweets: [],
-  gaps: [],
-  crossDomain: {
-    enabled: true,
-    organisms: ['animal', 'mammal', 'mouse', 'human'],
-    customTerms: [],
-  },
-  saved: JSON.parse(localStorage.getItem('phyto_saved') || '[]'),
-  notes: localStorage.getItem('phyto_notes') || '',
-  apiKey: localStorage.getItem('phyto_apikey') || '',
+  saved: JSON.parse(localStorage.getItem('ps_saved')||'[]'),
+  notes: localStorage.getItem('ps_notes')||'',
+  geminiKey: localStorage.getItem('ps_gemini')||'',
+  claudeKey: localStorage.getItem('ps_claude')||'',
 };
 
-// ─── Init ───
+const qCache = {};
+
+// ═══════════════════════════════
+// INIT
+// ═══════════════════════════════
 function init() {
-  renderKeywords();
-  renderOrgTags();
-  renderSaved();
-  document.getElementById('notesArea').value = state.notes;
-  document.getElementById('apiKeyInput').value = state.apiKey;
-  updateRlBadge();
-  updateNextRun();
-  document.getElementById('scheduleSelect').addEventListener('change', updateNextRun);
-
-  // Auto-run on load if schedule is daily etc.
-  // runSearch(); // Uncomment to auto-run
+  renderKw(); renderOrgs(); renderSaved();
+  document.getElementById('notesArea').value = S.notes;
+  document.getElementById('geminiKey').value = S.geminiKey;
+  document.getElementById('claudeKey').value = S.claudeKey;
+  updateAiStatus(); updateRlBadge();
+  setInterval(autoSaveNotes, 30000);
+  loadD3();
 }
 
-// ─── Keywords ───
-function addKeyword() {
-  const inp = document.getElementById('kwInput');
-  const val = inp.value.trim();
-  if (val && !state.keywords.includes(val)) {
-    state.keywords.push(val);
-    renderKeywords();
+// ═══════════════════════════════
+// COLLAPSIBLE
+// ═══════════════════════════════
+function toggleSection(id) {
+  const body = document.getElementById(id);
+  const chev = document.getElementById('chev-'+id);
+  const hd   = chev.closest('.collapsible-hd');
+  body.classList.toggle('open');
+  hd.classList.toggle('open');
+}
+
+// ═══════════════════════════════
+// KEYWORDS
+// ═══════════════════════════════
+function addKw() {
+  const el = document.getElementById('kwInput');
+  const v  = el.value.trim();
+  if (v && !S.keywords.includes(v)) { S.keywords.push(v); renderKw(); }
+  el.value = ''; el.focus();
+}
+function removeKw(k) { S.keywords = S.keywords.filter(x=>x!==k); renderKw(); }
+function renderKw() {
+  document.getElementById('kwChips').innerHTML = S.keywords.map(k=>
+    `<div class="kw-chip">${k}<span class="rm" onclick="removeKw('${k}')">×</span></div>`
+  ).join('');
+}
+
+// ═══════════════════════════════
+// SOURCES
+// ═══════════════════════════════
+function toggleSrc(name) {
+  S.sources[name] = !S.sources[name];
+  document.getElementById('tog-'+name).classList.toggle('on', S.sources[name]);
+}
+
+// ═══════════════════════════════
+// CROSS-DOMAIN ORGANISMS
+// ═══════════════════════════════
+function toggleCross() {
+  S.crossEnabled = !S.crossEnabled;
+  document.getElementById('tog-cross').classList.toggle('on', S.crossEnabled);
+}
+function addOrg() {
+  const el = document.getElementById('orgInput');
+  const v  = el.value.trim();
+  if (v && !S.crossOrgs.includes(v)) { S.crossOrgs.push(v); renderOrgs(); }
+  el.value = '';
+}
+function removeOrg(o) { S.crossOrgs = S.crossOrgs.filter(x=>x!==o); renderOrgs(); }
+function renderOrgs() {
+  document.getElementById('org-chips').innerHTML = S.crossOrgs.map(o=>
+    `<div class="org-chip">${o}<span class="rm" onclick="removeOrg('${o}')">×</span></div>`
+  ).join('');
+}
+
+// ═══════════════════════════════
+// AI KEY
+// ═══════════════════════════════
+function saveKey() {
+  S.geminiKey = document.getElementById('geminiKey').value;
+  S.claudeKey = document.getElementById('claudeKey').value;
+  localStorage.setItem('ps_gemini', S.geminiKey);
+  localStorage.setItem('ps_claude', S.claudeKey);
+  updateAiStatus();
+}
+function updateAiStatus() {
+  const el = document.getElementById('aiStatus');
+  const ml = document.getElementById('modelLabel');
+  if (S.geminiKey) {
+    el.textContent = '✓ Gemini 免費版已設定';
+    el.style.color = 'var(--accent)';
+    ml.textContent = 'Gemini 2.0 Flash · 免費';
+  } else if (S.claudeKey) {
+    el.textContent = '✓ Claude (Anthropic) 已設定';
+    el.style.color = 'var(--info)';
+    ml.textContent = 'Claude Sonnet 4 · 付費';
+  } else {
+    el.textContent = '未設定 · 文獻搜尋仍可正常使用';
+    el.style.color = '';
+    ml.textContent = 'AI 未設定';
   }
-  inp.value = '';
-  inp.focus();
 }
 
-function removeKeyword(kw) {
-  state.keywords = state.keywords.filter(k => k !== kw);
-  renderKeywords();
-}
-
-function renderKeywords() {
-  const el = document.getElementById('kwTags');
-  el.innerHTML = state.keywords.map(k => `
-    <div class="keyword-tag">
-      ${k}
-      <span class="rm" onclick="removeKeyword('${k}')">×</span>
-    </div>
-  `).join('');
-}
-
-// ─── Sources ───
-function toggleSource(name) {
-  state.sources[name] = !state.sources[name];
-  const el = document.getElementById('src-' + name);
-  el.classList.toggle('active', state.sources[name]);
-}
-
-// ─── API Key ───
-function saveApiKey(v) {
-  state.apiKey = v;
-  localStorage.setItem('phyto_apikey', v);
-}
-
-// ─── Tabs ───
+// ═══════════════════════════════
+// TABS
+// ═══════════════════════════════
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    const panels = ['overview','papers','cross','network','twitter','gaps','saved','notes'];
-    t.classList.toggle('active', panels[i] === name);
-  });
-  document.querySelectorAll('.tab-panel').forEach(p => {
-    p.classList.toggle('active', p.id === 'panel-' + name);
-  });
+  const names = ['overview','papers','cross','network','gaps','saved','notes'];
+  document.querySelectorAll('.tab-btn').forEach((b,i)=>b.classList.toggle('active',names[i]===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active',p.id==='panel-'+name));
 }
 
-// ─── Main Search ───
-async function runSearch() {
-  if (state.keywords.length === 0) { showToast('請先輸入至少一個關鍵字', '⚠️'); return; }
+// ═══════════════════════════════
+// STATUS
+// ═══════════════════════════════
+function setBusy(b) {
+  const pip = document.getElementById('pip');
+  const btn = document.getElementById('runBtn');
+  const topBtn = document.getElementById('topRunBtn');
+  pip.className = 'status-pip' + (b?' busy':' active');
+  btn.classList.toggle('busy',b);
+  document.getElementById('runBtnTxt').textContent = b ? '搜尋中…' : '開始搜尋';
+  topBtn.textContent = b ? '搜尋中…' : '搜尋';
+}
 
-  setLoading(true);
+function toast(msg) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  setTimeout(()=>el.classList.remove('show'), 2800);
+}
+
+// ═══════════════════════════════
+// MAIN SEARCH
+// ═══════════════════════════════
+async function runSearch() {
+  if (!S.keywords.length) { toast('⚠️ 請先輸入關鍵字'); return; }
+  setBusy(true);
   document.getElementById('overviewEmpty').style.display = 'none';
   document.getElementById('overviewContent').style.display = 'block';
-  document.getElementById('summaryBox').innerHTML = renderSkeletons(3);
-  document.getElementById('papersList').innerHTML = renderSkeletons(4);
-  document.getElementById('gapsList').innerHTML = renderSkeletons(2);
-  if (state.crossDomain.enabled) {
-    document.getElementById('crossList').innerHTML = renderSkeletons(3);
-    document.getElementById('crossAIBox').style.display = 'none';
-  }
+  document.getElementById('aiBox').innerHTML = skels(3);
+  document.getElementById('papersList').innerHTML = skels(4);
+  document.getElementById('gapsList').innerHTML = skels(2);
 
-  const query = state.keywords.join(' ');
-  const limit = parseInt(document.getElementById('limitSlider').value);
+  const q = S.keywords.join(' ');
+  const lim = parseInt(document.getElementById('limitSlider').value);
 
   try {
-    const [pubmedPapers, arxivPapers, crossrefPapers, biorxivPapers] = await Promise.all([
-      state.sources.pubmed ? fetchPubMed(query, Math.ceil(limit/4)) : [],
-      state.sources.arxiv ? fetchArXiv(query, Math.ceil(limit/4)) : [],
-      state.sources.crossref ? fetchCrossRef(query, Math.ceil(limit/4)) : [],
-      state.sources.biorxiv ? fetchBioRxiv(query, Math.ceil(limit/4)) : [],
+    const [pm, ax, cr, bx] = await Promise.all([
+      S.sources.pubmed   ? fetchPubMed(q, Math.ceil(lim/4))   : [],
+      S.sources.arxiv    ? fetchArXiv(q, Math.ceil(lim/4))    : [],
+      S.sources.crossref ? fetchCrossRef(q, Math.ceil(lim/4)) : [],
+      S.sources.biorxiv  ? fetchBioRxiv(q, Math.ceil(lim/4))  : [],
     ]);
+    S.papers = [...pm,...ax,...cr,...bx].sort((a,b)=>new Date(b.date)-new Date(a.date));
 
-    state.papers = [...pubmedPapers, ...arxivPapers, ...crossrefPapers, ...biorxivPapers]
-      .sort((a, b) => new Date(b.date) - new Date(a.date));
-
-    // Simulated tweets (real Twitter API requires backend/bearer token)
-    state.tweets = generateSimulatedTweets(query);
-
-    document.getElementById('statPapers').textContent = state.papers.length;
-    document.getElementById('statTime').textContent = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit'});
-    document.getElementById('paperCount').textContent = `(${state.papers.length} 篇)`;
+    document.getElementById('statP').textContent = S.papers.length;
+    document.getElementById('statT').textContent = new Date().toLocaleTimeString('zh-TW',{hour:'2-digit',minute:'2-digit'});
+    document.getElementById('pCount').textContent = S.papers.length ? `(${S.papers.length})` : '';
 
     renderPapers();
-    renderTweets();
+    enrichQuality();
 
-    // Async quality enrichment (non-blocking)
-    enrichPaperQuality();
-
-    // Cross-domain search
-    if (state.crossDomain.enabled) {
-      runCrossDomainSearch(query);
+    if (S.crossEnabled) runCross(q);
+    if (S.geminiKey || S.claudeKey) runAI(q);
+    else {
+      document.getElementById('aiBox').innerHTML = `
+        <h3>搜尋完成</h3>
+        <p>共找到 <strong>${S.papers.length}</strong> 篇論文，關鍵字：${S.keywords.map(k=>`<mark>${k}</mark>`).join('、')}。</p>
+        <p style="color:var(--ink-3);">設定 Gemini 免費 API Key 以啟用 AI 摘要與研究缺口分析。</p>`;
+      document.getElementById('gapsList').innerHTML = `<div class="empty"><div class="empty-icon">🔑</div><div class="empty-title">需要 AI Key</div><div class="empty-sub">設定後可自動分析研究缺口</div></div>`;
     }
-
-    if (state.apiKey) {
-      await runAIAnalysis(query);
-    } else {
-      document.getElementById('summaryBox').innerHTML = `
-        <h4>⚠️ 未設定 Anthropic API Key</h4>
-        <p>請在左側欄位輸入你的 API Key 以啟用 AI 摘要分析。你仍可瀏覽期刊論文。</p>
-        <h4>📊 搜尋結果統計</h4>
-        <p>共找到 <strong>${state.papers.length}</strong> 篇論文，關鍵字為：${state.keywords.map(k=>`<mark>${k}</mark>`).join('、')}。</p>
-      `;
-      document.getElementById('gapsList').innerHTML = `<div class="empty-state"><div class="empty-icon">🔑</div><div class="empty-title">需要 API Key</div><div class="empty-sub">設定 Anthropic API Key 後可使用 AI 研究缺口分析</div></div>`;
-    }
-
   } catch(e) {
-    showToast('搜尋時發生錯誤：' + e.message, '❌');
-    console.error(e);
+    toast('❌ 搜尋失敗：'+e.message);
   }
-
-  setLoading(false);
+  setBusy(false);
 }
 
-// ─── PubMed ───
-// Uses NCBI E-utilities — full CORS support, no custom headers needed
-async function fetchPubMed(query, max) {
+// ═══════════════════════════════
+// FETCH APIS
+// ═══════════════════════════════
+async function fetchPubMed(q, max) {
   try {
-    const base = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
-    const searchUrl = `${base}esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=${max}&sort=date&retmode=json&usehistory=n`;
-    const res = await fetch(searchUrl);
-    if (!res.ok) throw new Error(`PubMed search ${res.status}`);
-    const data = await res.json();
-    const ids = data?.esearchresult?.idlist || [];
+    const r1 = await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esearch.fcgi?db=pubmed&term=${encodeURIComponent(q)}&retmax=${max}&sort=date&retmode=json`);
+    const d1 = await r1.json();
+    const ids = d1.esearchresult.idlist;
     if (!ids.length) return [];
-
-    const summaryUrl = `${base}esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`;
-    const res2 = await fetch(summaryUrl);
-    if (!res2.ok) throw new Error(`PubMed summary ${res2.status}`);
-    const data2 = await res2.json();
-    const result = data2?.result || {};
-
-    return ids.map(id => {
-      const r = result[id];
-      if (!r || r.error) return null;
-      return {
-        source: 'pubmed', id,
-        title: r.title || 'Untitled',
-        authors: (r.authors || []).slice(0,3).map(a => a.name).join(', '),
-        date: r.pubdate || r.epubdate || '',
-        abstract: '',   // esummary doesn't return abstract; shown as empty
-        url: `https://pubmed.ncbi.nlm.nih.gov/${id}/`,
-        journal: r.source || '',
-        keywords: state.keywords,
-        doi: (r.articleids || []).find(a => a.idtype === 'doi')?.value || '',
-      };
+    const r2 = await fetch(`https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`);
+    const d2 = await r2.json();
+    return ids.map(id=>{
+      const r=d2.result[id]; if(!r) return null;
+      return { source:'pubmed', id, title:r.title||'Untitled', authors:(r.authors||[]).slice(0,3).map(a=>a.name).join(', '), date:r.pubdate||'', abstract:r.title, url:`https://pubmed.ncbi.nlm.nih.gov/${id}/`, journal:r.source||'' };
     }).filter(Boolean);
-  } catch(e) { console.warn('PubMed error', e); return []; }
+  } catch(e){ console.warn('PubMed',e); return []; }
 }
 
-// ─── arXiv ───
-// Uses the official Atom feed API — CORS allowed, no headers required
-async function fetchArXiv(query, max) {
+async function fetchArXiv(q, max) {
   try {
-    // Must use HTTP (not HTTPS export subdomain) for CORS from browser
-    const url = `https://arxiv.org/search/?searchtype=all&query=${encodeURIComponent(query)}&start=0`;
-    // Atom API endpoint (CORS-enabled):
-    const apiUrl = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&start=0&max_results=${max}&sortBy=submittedDate&sortOrder=descending`;
-    const res = await fetch(apiUrl);
-    if (!res.ok) throw new Error(`arXiv ${res.status}`);
-    const text = await res.text();
-    const parser = new DOMParser();
-    const xml = parser.parseFromString(text, 'text/xml');
-    const entries = Array.from(xml.querySelectorAll('entry'));
-
-    return entries.map(e => {
-      const rawId = e.querySelector('id')?.textContent || '';
-      // id format: http://arxiv.org/abs/2301.12345v2  → extract "2301.12345"
-      const idMatch = rawId.match(/abs\/([^v]+)/);
-      const id = idMatch ? idMatch[1] : rawId;
-      return {
-        source: 'arxiv', id,
-        title: (e.querySelector('title')?.textContent || 'Untitled').trim().replace(/\s+/g,' '),
-        authors: Array.from(e.querySelectorAll('author name')).slice(0,3).map(a => a.textContent.trim()).join(', '),
-        date: e.querySelector('published')?.textContent?.substring(0,10) || '',
-        abstract: (e.querySelector('summary')?.textContent || '').trim().replace(/\s+/g,' '),
-        url: `https://arxiv.org/abs/${id}`,
-        journal: 'arXiv',
-        keywords: state.keywords,
-        doi: id,
-      };
+    const r = await fetch(`https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(q)}&max_results=${max}&sortBy=submittedDate&sortOrder=descending`);
+    const txt = await r.text();
+    const xml = new DOMParser().parseFromString(txt,'application/xml');
+    return Array.from(xml.querySelectorAll('entry')).map(e=>{
+      const id = e.querySelector('id')?.textContent?.split('/abs/')[1]||'';
+      return { source:'arxiv', id, title:e.querySelector('title')?.textContent?.trim()||'Untitled', authors:Array.from(e.querySelectorAll('author name')).slice(0,3).map(a=>a.textContent).join(', '), date:e.querySelector('published')?.textContent?.substring(0,10)||'', abstract:e.querySelector('summary')?.textContent?.trim()||'', url:`https://arxiv.org/abs/${id}`, journal:'arXiv' };
     });
-  } catch(e) { console.warn('arXiv error', e); return []; }
+  } catch(e){ console.warn('arXiv',e); return []; }
 }
 
-// ─── CrossRef ───
-// Public API — CORS allowed; must NOT send custom User-Agent (triggers preflight)
-async function fetchCrossRef(query, max) {
+async function fetchCrossRef(q, max) {
   try {
-    const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=${max}&sort=published&order=desc&select=DOI,title,author,published,abstract,container-title,URL&mailto=phytoscolar@research.tool`;
-    const res = await fetch(url);  // no custom headers!
-    if (!res.ok) throw new Error(`CrossRef ${res.status}`);
-    const data = await res.json();
-    return (data.message?.items || []).map(item => ({
-      source: 'crossref',
-      id: item.DOI || '',
-      title: (item.title || ['Untitled'])[0],
-      authors: (item.author || []).slice(0,3).map(a => `${a.given||''} ${a.family||''}`.trim()).join(', '),
-      date: item.published?.['date-parts']?.[0]?.join('-') || '',
-      abstract: item.abstract ? item.abstract.replace(/<[^>]+>/g,'').trim() : '',
-      url: item.URL || (item.DOI ? `https://doi.org/${item.DOI}` : '#'),
-      journal: (item['container-title'] || [''])[0],
-      keywords: state.keywords,
-      doi: item.DOI || '',
+    const r = await fetch(`https://api.crossref.org/works?query=${encodeURIComponent(q)}&rows=${max}&sort=published&order=desc&select=DOI,title,author,published,abstract,container-title,URL`);
+    const d = await r.json();
+    return (d.message?.items||[]).map(item=>({
+      source:'crossref', id:item.DOI, title:(item.title||['Untitled'])[0],
+      authors:(item.author||[]).slice(0,3).map(a=>`${a.given||''} ${a.family||''}`.trim()).join(', '),
+      date:item.published?.['date-parts']?.[0]?.join('-')||'',
+      abstract:item.abstract?item.abstract.replace(/<[^>]+>/g,''):'',
+      url:item.URL||`https://doi.org/${item.DOI}`, journal:(item['container-title']||[''])[0]
     }));
-  } catch(e) { console.warn('CrossRef error', e); return []; }
+  } catch(e){ console.warn('CrossRef',e); return []; }
 }
 
-// ─── bioRxiv ───
-// bioRxiv's own API has inconsistent CORS. Most reliable browser-safe method:
-// query CrossRef restricted to prefix 10.1101 (all bioRxiv DOIs use this prefix)
-async function fetchBioRxiv(query, max) {
+async function fetchBioRxiv(q, max) {
   try {
-    const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&filter=prefix:10.1101&rows=${max}&sort=published&order=desc&select=DOI,title,author,posted,published,abstract,URL&mailto=phytoscolar@research.tool`;
-    const res = await fetch(url);  // no custom headers!
-    if (!res.ok) throw new Error(`bioRxiv/CrossRef ${res.status}`);
-    const data = await res.json();
-    return (data.message?.items || []).map(item => ({
-      source: 'biorxiv',
-      id: item.DOI || '',
-      title: (item.title || ['Untitled'])[0],
-      authors: (item.author || []).slice(0,3).map(a => `${a.given||''} ${a.family||''}`.trim()).join(', '),
-      date: item.posted?.['date-parts']?.[0]?.join('-') || item.published?.['date-parts']?.[0]?.join('-') || '',
-      abstract: item.abstract ? item.abstract.replace(/<[^>]+>/g,'').trim() : '',
-      url: item.URL || (item.DOI ? `https://doi.org/${item.DOI}` : '#'),
-      journal: 'bioRxiv',
-      keywords: state.keywords,
-      doi: item.DOI || '',
+    const r = await fetch(`https://api.crossref.org/works?query=${encodeURIComponent(q)}&filter=prefix:10.1101&rows=${max}&sort=published&order=desc`);
+    const d = await r.json();
+    return (d.message?.items||[]).map(item=>({
+      source:'biorxiv', id:item.DOI, title:(item.title||['Untitled'])[0],
+      authors:(item.author||[]).slice(0,3).map(a=>`${a.given||''} ${a.family||''}`.trim()).join(', '),
+      date:item.posted?.['date-parts']?.[0]?.join('-')||item.published?.['date-parts']?.[0]?.join('-')||'',
+      abstract:item.abstract?item.abstract.replace(/<[^>]+>/g,''):'',
+      url:item.URL||`https://doi.org/${item.DOI}`, journal:'bioRxiv'
     }));
-  } catch(e) { console.warn('bioRxiv error', e); return []; }
+  } catch(e){ console.warn('bioRxiv',e); return []; }
 }
 
+// ═══════════════════════════════
+// RENDER PAPERS
+// ═══════════════════════════════
+const srcClass = { pubmed:'src-pm', arxiv:'src-ax', crossref:'src-cr', biorxiv:'src-bx' };
+const srcLabel = { pubmed:'PubMed', arxiv:'arXiv', crossref:'CrossRef', biorxiv:'bioRxiv' };
 
-function generateSimulatedTweets(query) {
-  const accounts = [
-    { name: 'PlantBioDaily', handle: '@PlantBioDaily', init: 'P', color: '#2d8a4e' },
-    { name: 'Dr. Sarah Chen', handle: '@SarahChenLab', init: 'S', color: '#0d84d0' },
-    { name: 'PhytoResearch', handle: '@PhytoResearch', init: 'Ph', color: '#8b44e0' },
-    { name: 'GreenGenomics', handle: '@GreenGenomics', init: 'G', color: '#d4820a' },
-  ];
-  return [
-    { ...accounts[0], text: `🌱 New findings on ${query}: interesting connections being drawn to climate adaptation. Thread below 👇 #PlantScience #${query.replace(' ','').substring(0,12)}`, likes: 142, rts: 38, date: 'just now' },
-    { ...accounts[1], text: `Our lab just submitted a preprint on ${query} mechanisms. Really excited about these results — challenging some long-held assumptions! arxiv.org/... #openscience`, likes: 89, rts: 22, date: '2h ago' },
-    { ...accounts[2], text: `Anyone else seeing the ${query} / drought tolerance connection in their data? We're seeing some surprising results and would love to compare notes. DMs open.`, likes: 203, rts: 61, date: '5h ago' },
-    { ...accounts[3], text: `Review question: what's the current consensus on ${query} regulation under high CO₂? Trying to compile literature for a meta-analysis. Replies appreciated 🙏`, likes: 56, rts: 14, date: '1d ago' },
-  ];
-}
-
-// ─── Render Papers ───
-function renderPapers() {
-  if (!state.papers.length) {
-    document.getElementById('papersList').innerHTML = `<div class="empty-state"><div class="empty-icon">😔</div><div class="empty-title">找不到相關論文</div><div class="empty-sub">嘗試修改關鍵字或啟用更多資料來源</div></div>`;
-    return;
-  }
-  document.getElementById('papersList').innerHTML = state.papers.map((p, i) => {
-    const savedIds = state.saved.map(s=>s.id);
-    const isSaved = savedIds.includes(p.id);
-    const badgeClass = { pubmed: 'badge-pubmed', arxiv: 'badge-arxiv', crossref: 'badge-crossref', biorxiv: 'badge-biorxiv' }[p.source] || 'badge-crossref';
-    const sourceLabel = { pubmed: 'PubMed', arxiv: 'arXiv', crossref: 'CrossRef', biorxiv: 'bioRxiv' }[p.source] || p.source;
-    return `
-    <div class="paper-card" id="paper-${i}">
-      <div class="paper-meta">
-        <span class="paper-source-badge ${badgeClass}">${sourceLabel}</span>
-        <span class="paper-date">${p.date || 'n/d'}</span>
-        ${p.journal ? `<span style="font-size:11px;color:var(--text-dim);margin-left:4px;">· ${p.journal.substring(0,40)}</span>` : ''}
+function paperCardHTML(p, i, prefix='') {
+  const saved = S.saved.find(s=>s.id===p.id);
+  return `
+  <div class="paper-card">
+    <div>
+      <div class="p-meta">
+        <span class="p-src ${srcClass[p.source]||'src-cross'}">${srcLabel[p.source]||p.source}</span>
+        <span class="p-date">${p.date||'—'}</span>
+        ${p.journal?`<span class="p-journal">${p.journal.substring(0,45)}</span>`:''}
       </div>
-      <div class="paper-title"><a href="${p.url}" target="_blank" rel="noopener">${highlight(p.title)}</a></div>
-      ${p.authors ? `<div class="paper-authors">${p.authors}${p.authors ? ' et al.' : ''}</div>` : ''}
-      <div class="quality-bar" id="quality-${i}">
-        <span class="cite-badge loading" style="width:80px;">&nbsp;</span>
-      </div>
-      ${p.abstract ? `<div class="paper-abstract" id="abs-${i}">${highlight(p.abstract.substring(0,400))}...</div>` : ''}
-      <div class="paper-footer">
-        <div class="paper-keywords">
-          ${state.keywords.map(k=>`<span class="pkw">${k}</span>`).join('')}
-        </div>
-        <div class="paper-actions">
-          ${p.abstract ? `<button class="paper-action-btn" onclick="toggleAbstract(${i})">展開摘要</button>` : ''}
-          <button class="paper-action-btn ${isSaved?'saved':''}" id="save-btn-${i}" onclick="toggleSave(${i})">${isSaved?'✓ 已儲存':'🔖 儲存'}</button>
-          <a href="${p.url}" target="_blank" rel="noopener" style="text-decoration:none;">
-            <button class="paper-action-btn">↗ 查看原文</button>
-          </a>
-        </div>
-      </div>
-    </div>`;
-  }).join('');
-}
-
-// ─── Render Tweets ───
-function renderTweets() {
-  document.getElementById('twitterList').innerHTML = `
-    <div style="background:var(--blue-dim);border:1px solid rgba(88,166,255,0.3);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--blue);">
-      ⚠️ X (Twitter) 完整 API 需後端 Bearer Token 授權。以下為示範格式；真實部署請串接後端代理或使用 nitter 開放端點。
+      <div class="p-title"><a href="${p.url}" target="_blank" rel="noopener">${hl(p.title)}</a></div>
+      ${p.authors?`<div class="p-authors">${p.authors} et al.</div>`:''}
+      <div class="q-bar" id="${prefix}q-${i}"><span class="q-chip loading">&nbsp;</span></div>
+      ${p.abstract?`<div class="p-abstract" id="${prefix}abs-${i}">${hl(p.abstract.substring(0,350))}…</div>`:''}
     </div>
-    ${state.tweets.map(t => `
-    <div class="tweet-card">
-      <div class="tweet-header">
-        <div class="tweet-avatar" style="background:${t.color}">${t.init}</div>
-        <div>
-          <div class="tweet-user-name">${t.name}</div>
-          <div class="tweet-handle">${t.handle}</div>
-        </div>
-        <div class="tweet-date">${t.date}</div>
-      </div>
-      <div class="tweet-text">${t.text}</div>
-      <div class="tweet-stats">
-        <span class="tweet-stat">❤️ ${t.likes}</span>
-        <span class="tweet-stat">🔁 ${t.rts}</span>
-        <span class="tweet-stat">💬 Reply</span>
-      </div>
-    </div>`).join('')}
-  `;
+    <div class="p-actions">
+      <button class="p-btn ${saved?'saved':''}" id="${prefix}sv-${i}" onclick="${prefix==='c-'?`toggleCSave(${i})`:`toggleSave(${i})`}">${saved?'✓ 已存':'存'}</button>
+      ${p.abstract?`<button class="p-btn expand" onclick="toggleAbs('${prefix}abs-${i}')">展開</button>`:''}
+      <a href="${p.url}" target="_blank"><button class="p-btn">↗ 原文</button></a>
+    </div>
+  </div>`;
 }
 
-// ─── Cross-Domain Search ───
-function toggleCrossDomain() {
-  state.crossDomain.enabled = !state.crossDomain.enabled;
-  const el = document.getElementById('crossDomainToggle');
-  el.classList.toggle('active', state.crossDomain.enabled);
-  document.getElementById('crossDomainBody').style.opacity = state.crossDomain.enabled ? '1' : '0.4';
-  document.getElementById('crossDomainBody').style.pointerEvents = state.crossDomain.enabled ? '' : 'none';
-}
-
-function addOrganism() {
-  const inp = document.getElementById('orgInput');
-  const val = inp.value.trim();
-  if (val && !state.crossDomain.organisms.includes(val)) {
-    state.crossDomain.organisms.push(val);
-    renderOrgTags();
-  }
-  inp.value = '';
-}
-
-function removeOrganism(org) {
-  state.crossDomain.organisms = state.crossDomain.organisms.filter(o => o !== org);
-  renderOrgTags();
-}
-
-function renderOrgTags() {
-  document.getElementById('orgTags').innerHTML = state.crossDomain.organisms.map(o => `
-    <div class="keyword-tag" style="background:rgba(88,166,255,0.1);border-color:rgba(88,166,255,0.3);color:var(--blue);">
-      ${o}
-      <span class="rm" onclick="removeOrganism('${o}')">×</span>
-    </div>`).join('');
-}
-
-async function runCrossDomainSearch(baseQuery) {
-  // Build a compound query: base keywords + organism terms
-  const orgClause = state.crossDomain.organisms.slice(0,4).join(' OR ');
-  const crossQuery = `(${baseQuery}) AND (${orgClause})`;
-
-  try {
-    const [crossPubmed, crossCrossref] = await Promise.all([
-      state.sources.pubmed ? fetchPubMed(crossQuery, 8) : [],
-      state.sources.crossref ? fetchCrossRef(crossQuery, 8) : [],
-    ]);
-    state.crossPapers = [...crossPubmed, ...crossCrossref]
-      .sort((a,b) => new Date(b.date) - new Date(a.date));
-
-    document.getElementById('crossCount').textContent = `(${state.crossPapers.length} 篇)`;
-    renderCrossPapers();
-
-    if (state.apiKey && state.crossPapers.length > 0) {
-      await runCrossAIAnalysis(baseQuery);
-    }
-  } catch(e) {
-    console.warn('Cross-domain search error', e);
-    document.getElementById('crossList').innerHTML = `<div class="empty-state"><div class="empty-icon">😔</div><div class="empty-title">跨界搜尋失敗</div><div class="empty-sub">${e.message}</div></div>`;
-  }
-}
-
-function renderCrossPapers() {
-  const el = document.getElementById('crossList');
-  if (!state.crossPapers.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔬</div><div class="empty-title">找不到跨界論文</div><div class="empty-sub">試著調整「搜尋物種範圍」或關鍵字</div></div>`;
+function renderPapers() {
+  if (!S.papers.length) {
+    document.getElementById('papersList').innerHTML = `<div class="empty"><div class="empty-icon">😔</div><div class="empty-title">找不到論文</div><div class="empty-sub">嘗試修改關鍵字</div></div>`;
     return;
   }
-  const offset = state.papers.length; // use offset to avoid save-btn id collision
-  el.innerHTML = state.crossPapers.map((p, i) => {
-    const idx = offset + i;
-    const allSaved = [...state.papers, ...state.crossPapers];
-    const savedIds = state.saved.map(s=>s.id);
-    const isSaved = savedIds.includes(p.id);
-    const badgeClass = { pubmed:'badge-pubmed', arxiv:'badge-arxiv', crossref:'badge-crossref', biorxiv:'badge-biorxiv' }[p.source] || 'badge-crossref';
-    const sourceLabel = { pubmed:'PubMed', arxiv:'arXiv', crossref:'CrossRef', biorxiv:'bioRxiv' }[p.source] || p.source;
+  document.getElementById('papersList').innerHTML = S.papers.map((p,i)=>paperCardHTML(p,i)).join('');
+}
+
+function sortPapers() {
+  const by = document.getElementById('sortSel').value;
+  if (by==='date')  S.papers.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if (by==='title') S.papers.sort((a,b)=>a.title.localeCompare(b.title));
+  if (by==='cites') S.papers.sort((a,b)=>(b.quality?.citations||0)-(a.quality?.citations||0));
+  renderPapers();
+  enrichQuality();
+}
+
+function toggleAbs(id) { document.getElementById(id)?.classList.toggle('exp'); }
+function hl(txt) {
+  if (!txt) return '';
+  S.keywords.forEach(k=>{ txt=txt.replace(new RegExp(`(${k})`,'gi'),'<mark>$1</mark>'); });
+  return txt;
+}
+
+// ═══════════════════════════════
+// QUALITY ENRICHMENT
+// ═══════════════════════════════
+async function enrichQuality() {
+  for (let i=0; i<S.papers.length; i+=4) {
+    await Promise.allSettled(S.papers.slice(i,i+4).map((p,j)=>enrichOne(p,i+j,'','q-')));
+    if (i+4<S.papers.length) await sleep(350);
+  }
+}
+
+async function enrichOne(paper, idx, listPrefix, qPrefix) {
+  const el = document.getElementById(`${qPrefix}${idx}`);
+  if (!el) return;
+  const ck = paper.id||paper.title;
+  if (qCache[ck]) { paper.quality=qCache[ck]; renderQ(el,qCache[ck]); return; }
+  try {
+    const doi = paper.id?.includes('/')?paper.id:null;
+    let data = null;
+    const ssUrl = doi
+      ? `https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}?fields=citationCount,referenceCount,isOpenAccess,influentialCitationCount`
+      : `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(paper.title.substring(0,70))}&limit=1&fields=citationCount,referenceCount,isOpenAccess,influentialCitationCount`;
+    const r = await fetch(ssUrl);
+    if (r.ok) {
+      const raw = await r.json();
+      const item = raw.data?raw.data[0]:raw;
+      if (item?.citationCount!==undefined) data={ citations:item.citationCount||0, references:item.referenceCount||0, influential:item.influentialCitationCount||0, openAccess:item.isOpenAccess||false };
+    }
+    if (!data && doi) {
+      const r2 = await fetch(`https://api.openalex.org/works/https://doi.org/${doi}?select=cited_by_count,open_access`);
+      if (r2.ok) { const d=await r2.json(); data={ citations:d.cited_by_count||0, references:0, influential:0, openAccess:d.open_access?.is_oa||false }; }
+    }
+    if (!data) data={ citations:null, references:0, influential:0, openAccess:false };
+    qCache[ck]=data; paper.quality=data;
+    if (document.getElementById(`${qPrefix}${idx}`)) renderQ(document.getElementById(`${qPrefix}${idx}`),data);
+  } catch(e) { if(el) el.innerHTML=''; }
+}
+
+function renderQ(el, q) {
+  const c = q.citations;
+  const cls = c===null?'':c>=100?'hi':c>=20?'mid':'';
+  const cLabel = c===null?'引用數 —':`📊 被引 ${c.toLocaleString()}`;
+  const qEst = (c!==null&&c>=0)?` <span class="q-chip ${c>=200?'hi':c>=50?'mid':''}">${c>=200?'Q1':c>=50?'Q2':c>=10?'Q3':'Q4'} 估</span>`:'';
+  const oa = q.openAccess?`<span class="q-chip oa">🔓 開放取用</span>`:'';
+  el.innerHTML = `<span class="q-chip ${cls}">${cLabel}</span>${qEst}${oa}`;
+}
+
+// ═══════════════════════════════
+// CROSS-DOMAIN
+// ═══════════════════════════════
+async function runCross(baseQ) {
+  document.getElementById('crossList').innerHTML = skels(3);
+  document.getElementById('crossAI').style.display = 'none';
+  const cq = `(${baseQ}) AND (${S.crossOrgs.slice(0,4).join(' OR ')})`;
+  try {
+    const [cp, cc] = await Promise.all([
+      S.sources.pubmed   ? fetchPubMed(cq,8)   : [],
+      S.sources.crossref ? fetchCrossRef(cq,8) : [],
+    ]);
+    S.crossPapers = [...cp,...cc].sort((a,b)=>new Date(b.date)-new Date(a.date));
+    renderCross();
+    for (let i=0;i<S.crossPapers.length;i+=4) {
+      await Promise.allSettled(S.crossPapers.slice(i,i+4).map((p,j)=>enrichOne(p,i+j,'c-','c-q-')));
+      if (i+4<S.crossPapers.length) await sleep(350);
+    }
+    if ((S.geminiKey||S.claudeKey) && S.crossPapers.length) runCrossAI(baseQ);
+  } catch(e) { console.warn(e); }
+}
+
+function renderCross() {
+  if (!S.crossPapers.length) {
+    document.getElementById('crossList').innerHTML = `<div class="empty"><div class="empty-icon">🔬</div><div class="empty-title">找不到跨界論文</div><div class="empty-sub">調整物種範圍或關鍵字</div></div>`;
+    return;
+  }
+  document.getElementById('crossList').innerHTML = S.crossPapers.map((p,i)=>{
+    const saved = S.saved.find(s=>s.id===p.id);
     return `
-    <div class="paper-card" style="border-left:3px solid var(--blue);">
-      <div class="paper-meta">
-        <span style="font-size:10px;background:rgba(88,166,255,0.1);color:var(--blue);border:1px solid rgba(88,166,255,0.3);padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:0.5px;">跨界</span>
-        <span class="paper-source-badge ${badgeClass}" style="margin-left:4px;">${sourceLabel}</span>
-        <span class="paper-date">${p.date || 'n/d'}</span>
-        ${p.journal ? `<span style="font-size:11px;color:var(--text-dim);margin-left:4px;">· ${p.journal.substring(0,35)}</span>` : ''}
+    <div class="cross-card">
+      <div class="p-meta">
+        <span class="p-src ${srcClass[p.source]||'src-cross'}">${srcLabel[p.source]||p.source}</span>
+        <span style="font-size:.65rem;font-family:var(--mono);padding:2px 7px;border-radius:3px;background:var(--info-dim);color:var(--info);">跨界</span>
+        <span class="p-date">${p.date||'—'}</span>
       </div>
-      <div class="paper-title"><a href="${p.url}" target="_blank" rel="noopener">${highlight(p.title)}</a></div>
-      ${p.authors ? `<div class="paper-authors">${p.authors} et al.</div>` : ''}
-      ${p.abstract ? `<div class="paper-abstract" id="cabs-${i}">${highlight(p.abstract.substring(0,400))}...</div>` : ''}
-      <div class="paper-footer">
-        <div class="paper-keywords">
-          ${state.crossDomain.organisms.slice(0,3).map(o=>`<span class="pkw" style="background:var(--blue-dim);color:var(--blue);">${o}</span>`).join('')}
-        </div>
-        <div class="paper-actions">
-          ${p.abstract ? `<button class="paper-action-btn" onclick="toggleCrossAbstract(${i})">展開摘要</button>` : ''}
-          <button class="paper-action-btn ${isSaved?'saved':''}" id="csave-btn-${i}" onclick="toggleCrossSave(${i})">${isSaved?'✓ 已儲存':'🔖 儲存'}</button>
-          <a href="${p.url}" target="_blank" rel="noopener" style="text-decoration:none;">
-            <button class="paper-action-btn">↗ 查看原文</button>
-          </a>
-        </div>
+      <div class="p-title"><a href="${p.url}" target="_blank">${hl(p.title)}</a></div>
+      ${p.authors?`<div class="p-authors">${p.authors} et al.</div>`:''}
+      <div class="q-bar" id="c-q-${i}"><span class="q-chip loading">&nbsp;</span></div>
+      ${p.abstract?`<div class="p-abstract" id="c-abs-${i}">${hl(p.abstract.substring(0,300))}…</div>`:''}
+      <div style="display:flex;gap:6px;margin-top:6px;">
+        <button class="p-btn ${saved?'saved':''}" id="c-sv-${i}" onclick="toggleCSave(${i})">${saved?'✓ 已存':'存'}</button>
+        ${p.abstract?`<button class="p-btn expand" onclick="toggleAbs('c-abs-${i}')">展開</button>`:''}
+        <a href="${p.url}" target="_blank"><button class="p-btn">↗ 原文</button></a>
       </div>
     </div>`;
   }).join('');
 }
 
-function toggleCrossAbstract(i) {
-  document.getElementById(`cabs-${i}`)?.classList.toggle('expanded');
-}
-
-function toggleCrossSave(i) {
-  const p = state.crossPapers[i];
-  const idx = state.saved.findIndex(s => s.id === p.id);
-  if (idx >= 0) { state.saved.splice(idx, 1); showToast('已從閱讀清單移除'); }
-  else { state.saved.push(p); showToast('已加入閱讀清單 🔖'); }
-  localStorage.setItem('phyto_saved', JSON.stringify(state.saved));
+function toggleCSave(i) {
+  const p = S.crossPapers[i];
+  const idx = S.saved.findIndex(s=>s.id===p.id);
+  if (idx>=0) { S.saved.splice(idx,1); toast('移除閱讀清單'); }
+  else { S.saved.push(p); toast('已加入閱讀清單 🔖'); }
+  localStorage.setItem('ps_saved',JSON.stringify(S.saved));
   updateRlBadge();
-  document.getElementById('statSaved').textContent = state.saved.length;
-  const btn = document.getElementById(`csave-btn-${i}`);
-  if (btn) { const isSaved = state.saved.find(s=>s.id===p.id); btn.textContent = isSaved?'✓ 已儲存':'🔖 儲存'; btn.classList.toggle('saved',!!isSaved); }
+  document.getElementById('statS').textContent = S.saved.length;
+  const btn = document.getElementById(`c-sv-${i}`);
+  if (btn) { const sv=S.saved.find(s=>s.id===p.id); btn.textContent=sv?'✓ 已存':'存'; btn.classList.toggle('saved',!!sv); }
   renderSaved();
 }
 
-async function runCrossAIAnalysis(baseQuery) {
-  const plantSample = state.papers.slice(0,8).map(p=>`- "${p.title}" (${p.date})`).join('\n');
-  const crossSample = state.crossPapers.slice(0,8).map(p=>`- "${p.title}" (${p.date})`).join('\n');
-
-  const prompt = `你是一位具有跨物種比較生物學背景的植物科學研究員，正在幫助一位博士一年級學生做跨界文獻分析。
-
-研究關鍵字：${state.keywords.join(', ')}
-比較物種：${state.crossDomain.organisms.join(', ')}
-
-【植物相關論文（共${state.papers.length}篇，樣本）】
-${plantSample}
-
-【動物／微生物相關論文（共${state.crossPapers.length}篇，樣本）】
-${crossSample}
-
-請以**繁體中文**完成以下分析：
-
-<CROSS_COMPARISON>
-2-3段說明：
-1. 這個機制在動物／微生物中研究的深度與廣度
-2. 植物端目前的研究狀況與主要差距
-3. 哪些動物研究的發現最值得植物科學借鏡
-</CROSS_COMPARISON>
-
-<TRANSLATION_OPPORTUNITIES>
-列出 2-3 個「可轉譯方向」，格式為 JSON：
-[
-  {"animal_finding": "動物研究發現", "plant_hypothesis": "對應的植物假說", "difficulty": "容易/中等/困難"},
-  ...
-]
-</TRANSLATION_OPPORTUNITIES>
-
-<SUGGESTED_KEYWORDS>
-建議 4-6 個新關鍵字組合，可以幫助搜尋到這個交叉研究領域的文獻（英文，逗號分隔）。
-</SUGGESTED_KEYWORDS>`;
-
-  try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: [{ role:'user', content: prompt }] })
+// ═══════════════════════════════
+// AI — GEMINI + CLAUDE FALLBACK
+// ═══════════════════════════════
+async function callAI(prompt) {
+  if (S.geminiKey) {
+    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${S.geminiKey}`,{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ contents:[{ parts:[{text:prompt}] }] })
     });
-    const data = await res.json();
-    const text = data.content?.[0]?.text || '';
-    parseCrossAIResponse(text);
-  } catch(e) { console.warn('Cross AI error', e); }
-}
-
-function parseCrossAIResponse(text) {
-  const extract = (tag) => {
-    const m = text.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`));
-    return m ? m[1].trim() : '';
-  };
-  const comparison = extract('CROSS_COMPARISON');
-  const transRaw = extract('TRANSLATION_OPPORTUNITIES');
-  const suggestedKws = extract('SUGGESTED_KEYWORDS');
-
-  let transHTML = '';
-  try {
-    const trans = JSON.parse(transRaw);
-    const diffColor = { '容易':'var(--green)', '中等':'var(--amber)', '困難':'var(--red)' };
-    transHTML = `<h4>🔄 可轉譯研究方向</h4>` + trans.map(t => `
-      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;">
-        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
-          <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(88,166,255,0.1);color:var(--blue);font-family:'DM Mono',monospace;">動物發現</span>
-          <span style="color:${diffColor[t.difficulty]||'var(--text-muted)'};font-size:11px;font-family:'DM Mono',monospace;">● ${t.difficulty||'—'}</span>
-        </div>
-        <div style="font-size:13px;color:var(--text);margin-bottom:4px;">${t.animal_finding}</div>
-        <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">↓ 對應植物假說</div>
-        <div style="font-size:13px;color:var(--green);">${t.plant_hypothesis}</div>
-      </div>`).join('');
-  } catch(e) { transHTML = `<h4>🔄 可轉譯方向</h4><p>${transRaw}</p>`; }
-
-  const kwHTML = suggestedKws ? `
-    <h4>🔑 建議追加關鍵字</h4>
-    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
-      ${suggestedKws.split(',').map(k=>`<span class="keyword-tag" style="cursor:pointer;" onclick="addSuggestedKeyword('${k.trim()}')">${k.trim()} <span style="opacity:0.6;font-size:11px;">＋</span></span>`).join('')}
-    </div>
-    <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">點擊可加入搜尋關鍵字</div>` : '';
-
-  document.getElementById('crossAISummary').innerHTML = `
-    <h4>🔬 跨界機制比較分析</h4>
-    <p style="white-space:pre-line;">${comparison || '—'}</p>
-    ${transHTML}
-    ${kwHTML}
-  `;
-  document.getElementById('crossAIBox').style.display = 'block';
-}
-
-function addSuggestedKeyword(kw) {
-  if (!state.keywords.includes(kw)) {
-    state.keywords.push(kw);
-    renderKeywords();
-    showToast(`已加入關鍵字：${kw}`);
+    const d = await r.json();
+    if (d.error) throw new Error(d.error.message);
+    return d.candidates?.[0]?.content?.parts?.[0]?.text||'';
   }
+  if (S.claudeKey) {
+    const r = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':S.claudeKey,'anthropic-version':'2023-06-01'},
+      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1800, messages:[{role:'user',content:prompt}] })
+    });
+    const d = await r.json();
+    return d.content?.[0]?.text||'';
+  }
+  throw new Error('No AI key');
 }
 
-// ─── AI Analysis via Anthropic API ───
-async function runAIAnalysis(query) {
-  const paperSample = state.papers.slice(0, 15).map(p =>
-    `- [${p.source}] "${p.title}" (${p.date}) — ${p.abstract ? p.abstract.substring(0,200) : 'no abstract'}`
-  ).join('\n');
+async function runAI(q) {
+  const sample = S.papers.slice(0,15).map(p=>`- [${p.source}] "${p.title}" (${p.date}) — ${(p.abstract||'').substring(0,180)}`).join('\n');
+  const prompt = `你是資深植物科學研究員助理，幫助博士一年級學生整理文獻。
 
-  const prompt = `你是一位資深植物科學研究員助理，正在幫助一位博士一年級學生整理研究文獻。
+關鍵字：${S.keywords.join(', ')}
+論文樣本（共${S.papers.length}篇，前15篇）：
+${sample}
 
-研究關鍵字：${state.keywords.join(', ')}
+以繁體中文回答，使用以下標記格式：
 
-以下是近期相關論文清單（共 ${state.papers.length} 篇，以下為前 15 篇樣本）：
-${paperSample}
+<SUMMARY>3-4句話總結整體研究趨勢</SUMMARY>
 
-請根據以上資料，完成以下任務，以**繁體中文**回答，使用以下格式：
-
-<SUMMARY>
-用 3-4 句話總結這批文獻的整體研究方向與近期趨勢。
-</SUMMARY>
-
-<KEY_THEMES>
-列出 3-5 個主要研究主題（每個 15-30 字）。
-</KEY_THEMES>
+<KEY_THEMES>3-5個主要研究主題，每個15-30字，條列</KEY_THEMES>
 
 <RESEARCH_GAPS>
-分析 3 個現有研究明顯缺乏或值得深入探索的方向，每個以 JSON 物件格式：
 [
-  {"title": "缺口標題", "description": "50-80字說明", "keywords": ["關鍵詞1", "關鍵詞2"]},
-  ...
+  {"title":"缺口標題","description":"50-80字說明","keywords":["詞1","詞2"]},
+  {"title":"缺口標題","description":"50-80字說明","keywords":["詞1","詞2"]},
+  {"title":"缺口標題","description":"50-80字說明","keywords":["詞1","詞2"]}
 ]
 </RESEARCH_GAPS>
 
-<ADVICE>
-針對植物科學博士一年級學生，給 2-3 條具體可行的閱讀建議。
-</ADVICE>`;
+<ADVICE>針對博士一年級，2-3條具體閱讀建議</ADVICE>`;
 
   try {
-    const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01' },
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 1800,
-        messages: [{ role: 'user', content: prompt }]
-      })
-    });
-    const data = await res.json();
-    const text = data.content?.[0]?.text || '';
-    parseAIResponse(text);
+    const text = await callAI(prompt);
+    parseAI(text);
   } catch(e) {
-    console.error('AI error', e);
-    document.getElementById('summaryBox').innerHTML = `<p style="color:var(--red)">AI 分析失敗：${e.message}</p>`;
+    document.getElementById('aiBox').innerHTML = `<h3>⚠️ AI 分析失敗</h3><p>${e.message}</p>`;
   }
 }
 
-function parseAIResponse(text) {
-  const extract = (tag) => {
-    const m = text.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`));
-    return m ? m[1].trim() : '';
-  };
+function parseAI(text) {
+  const get = tag => { const m=text.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`)); return m?m[1].trim():''; };
+  const summary = get('SUMMARY');
+  const themes  = get('KEY_THEMES');
+  const gapsRaw = get('RESEARCH_GAPS');
+  const advice  = get('ADVICE');
 
-  const summary = extract('SUMMARY');
-  const themes = extract('KEY_THEMES');
-  const gapsRaw = extract('RESEARCH_GAPS');
-  const advice = extract('ADVICE');
+  document.getElementById('aiBox').innerHTML = `
+    <h3>文獻整體趨勢</h3><p>${summary||'—'}</p>
+    <h3>主要研究主題</h3><p>${themes||'—'}</p>
+    <h3>閱讀建議（博士生）</h3><p>${advice||'—'}</p>`;
 
-  // Summary box
-  document.getElementById('summaryBox').innerHTML = `
-    <h4>📊 文獻整體趨勢</h4>
-    <p>${summary || '無法解析摘要。'}</p>
-    <h4>🏷️ 主要研究主題</h4>
-    <p>${themes || '—'}</p>
-    <h4>💡 閱讀建議（針對博士生）</h4>
-    <p>${advice || '—'}</p>
-  `;
-
-  // Gaps
   try {
     const gaps = JSON.parse(gapsRaw);
-    state.gaps = gaps;
-    document.getElementById('statGaps').textContent = gaps.length;
-    document.getElementById('gapsList').innerHTML = gaps.map(g => `
+    document.getElementById('statG').textContent = gaps.length;
+    document.getElementById('gapsList').innerHTML = gaps.map(g=>`
       <div class="gap-card">
         <div class="gap-title">⚡ ${g.title}</div>
         <div class="gap-body">${g.description}</div>
-        <div class="gap-keywords">
-          ${(g.keywords||[]).map(k=>`<span class="gap-kw">${k}</span>`).join('')}
-        </div>
-      </div>
-    `).join('') || '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">現有研究較為完整</div></div>';
+        <div class="gap-chips">${(g.keywords||[]).map(k=>`<span class="gap-chip">${k}</span>`).join('')}</div>
+      </div>`).join('');
   } catch(e) {
-    document.getElementById('gapsList').innerHTML = `<div class="summary-box"><p>${gapsRaw || 'AI 未能解析研究缺口'}</p></div>`;
+    document.getElementById('gapsList').innerHTML = `<div class="ai-box"><p>${gapsRaw||'解析失敗'}</p></div>`;
   }
 }
 
-// ─── Helpers ───
-function highlight(text) {
-  if (!text) return '';
-  let t = text;
-  state.keywords.forEach(k => {
-    const re = new RegExp(`(${k})`, 'gi');
-    t = t.replace(re, '<mark>$1</mark>');
-  });
-  return t;
+async function runCrossAI(baseQ) {
+  const ps = S.papers.slice(0,8).map(p=>`- "${p.title}" (${p.date})`).join('\n');
+  const cs = S.crossPapers.slice(0,8).map(p=>`- "${p.title}" (${p.date})`).join('\n');
+  const prompt = `你是跨物種比較生物學的植物科學研究員，幫助博士一年級學生分析跨界文獻。
+
+關鍵字：${S.keywords.join(', ')}　比較物種：${S.crossOrgs.join(', ')}
+
+植物論文樣本：
+${ps}
+
+動物/微生物論文樣本：
+${cs}
+
+以繁體中文回答：
+
+<CROSS_COMPARISON>2-3段比較：1.動物端研究深度 2.植物端現況與差距 3.最值得借鏡的發現</CROSS_COMPARISON>
+
+<TRANSLATION_OPPORTUNITIES>
+[
+  {"animal_finding":"動物發現","plant_hypothesis":"對應植物假說","difficulty":"容易/中等/困難"},
+  {"animal_finding":"動物發現","plant_hypothesis":"對應植物假說","difficulty":"容易/中等/困難"}
+]
+</TRANSLATION_OPPORTUNITIES>
+
+<SUGGESTED_KEYWORDS>4-6個建議追加關鍵字，英文，逗號分隔</SUGGESTED_KEYWORDS>`;
+
+  try {
+    const text = await callAI(prompt);
+    parseCrossAI(text);
+  } catch(e) { console.warn(e); }
 }
 
-function toggleAbstract(i) {
-  const el = document.getElementById(`abs-${i}`);
-  el.classList.toggle('expanded');
+function parseCrossAI(text) {
+  const get = tag => { const m=text.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`)); return m?m[1].trim():''; };
+  const comp  = get('CROSS_COMPARISON');
+  const transR = get('TRANSLATION_OPPORTUNITIES');
+  const kws   = get('SUGGESTED_KEYWORDS');
+
+  let transHTML = '';
+  try {
+    const trans = JSON.parse(transR);
+    const dc = {'容易':'var(--accent)','中等':'var(--amber)','困難':'var(--warn)'};
+    transHTML = `<h3>可轉譯研究方向</h3>` + trans.map(t=>`
+      <div style="border:1px solid var(--rule);border-radius:var(--r-lg);padding:12px 14px;margin-bottom:8px;background:var(--bg);">
+        <div style="font-size:.72rem;font-family:var(--mono);color:var(--ink-3);margin-bottom:4px;">動物發現 <span style="color:${dc[t.difficulty]||'var(--ink-3)'};">● ${t.difficulty}</span></div>
+        <div style="font-size:.85rem;color:var(--ink);margin-bottom:3px;">${t.animal_finding}</div>
+        <div style="font-size:.72rem;color:var(--ink-3);margin-bottom:3px;">↓ 植物假說</div>
+        <div style="font-size:.85rem;color:var(--accent);">${t.plant_hypothesis}</div>
+      </div>`).join('');
+  } catch(e) {}
+
+  const kwHTML = kws ? `<h3>建議追加關鍵字</h3>
+    <div style="display:flex;flex-wrap:wrap;gap:5px;">
+      ${kws.split(',').map(k=>`<span class="kw-chip" style="cursor:pointer;" onclick="addSugKw('${k.trim()}')">${k.trim()} ＋</span>`).join('')}
+    </div>` : '';
+
+  document.getElementById('crossAIBox').innerHTML = `
+    <h3>跨界機制比較分析</h3><p style="white-space:pre-line;">${comp||'—'}</p>
+    ${transHTML}${kwHTML}`;
+  document.getElementById('crossAI').style.display = 'block';
 }
 
+function addSugKw(k) {
+  if (!S.keywords.includes(k)) { S.keywords.push(k); renderKw(); toast(`已加入關鍵字：${k}`); }
+}
+
+// ═══════════════════════════════
+// SAVE / SAVED LIST
+// ═══════════════════════════════
 function toggleSave(i) {
-  const p = state.papers[i];
-  const idx = state.saved.findIndex(s => s.id === p.id);
-  if (idx >= 0) {
-    state.saved.splice(idx, 1);
-    showToast('已從閱讀清單移除');
-  } else {
-    state.saved.push(p);
-    showToast('已加入閱讀清單 🔖');
-  }
-  localStorage.setItem('phyto_saved', JSON.stringify(state.saved));
+  const p = S.papers[i];
+  const idx = S.saved.findIndex(s=>s.id===p.id);
+  if (idx>=0) { S.saved.splice(idx,1); toast('移除閱讀清單'); }
+  else { S.saved.push(p); toast('已加入閱讀清單 🔖'); }
+  localStorage.setItem('ps_saved',JSON.stringify(S.saved));
   updateRlBadge();
-  document.getElementById('statSaved').textContent = state.saved.length;
-  const btn = document.getElementById(`save-btn-${i}`);
-  if (btn) {
-    const isSaved = state.saved.find(s=>s.id===p.id);
-    btn.textContent = isSaved ? '✓ 已儲存' : '🔖 儲存';
-    btn.classList.toggle('saved', !!isSaved);
-  }
+  document.getElementById('statS').textContent = S.saved.length;
+  const btn = document.getElementById(`sv-${i}`);
+  if (btn) { const sv=S.saved.find(s=>s.id===p.id); btn.textContent=sv?'✓ 已存':'存'; btn.classList.toggle('saved',!!sv); }
   renderSaved();
 }
 
 function renderSaved() {
-  const el = document.getElementById('savedList');
-  if (!state.saved.length) {
-    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔖</div><div class="empty-title">尚無儲存項目</div><div class="empty-sub">點擊論文卡片上的「儲存」按鈕即可加入閱讀清單</div></div>`;
-    return;
-  }
-  el.innerHTML = state.saved.map((p,i) => {
-    const icons = { pubmed:'🧬', arxiv:'📄', crossref:'📚', biorxiv:'🧪', twitter:'🐦' };
-    return `
-    <div class="saved-card">
-      <div class="saved-card-icon">${icons[p.source]||'📄'}</div>
-      <div class="saved-card-body">
-        <div class="saved-card-title">${p.title}</div>
-        <div class="saved-card-meta">${p.source.toUpperCase()} · ${p.date || '—'} · ${p.authors ? p.authors.substring(0,40)+'...' : ''}</div>
-        <a class="saved-card-link" href="${p.url}" target="_blank">↗ 查看原文</a>
+  const icons = {pubmed:'🧬',arxiv:'📄',crossref:'📚',biorxiv:'🧪'};
+  document.getElementById('savedList').innerHTML = S.saved.length ? S.saved.map((p,i)=>`
+    <div class="saved-row">
+      <div class="saved-icon">${icons[p.source]||'📄'}</div>
+      <div style="flex:1;min-width:0;">
+        <div class="saved-title">${p.title}</div>
+        <div class="saved-meta">${(p.source||'').toUpperCase()} · ${p.date||'—'}</div>
+        <a class="saved-link" href="${p.url}" target="_blank">↗ 查看原文</a>
       </div>
-      <button class="paper-action-btn" onclick="removeSaved(${i})" style="flex-shrink:0;">✕</button>
-    </div>`;
-  }).join('');
+      <button class="p-btn" onclick="removeSaved(${i})">✕</button>
+    </div>`).join('')
+    : `<div class="empty"><div class="empty-icon">🔖</div><div class="empty-title">閱讀清單是空的</div></div>`;
 }
 
 function removeSaved(i) {
-  state.saved.splice(i, 1);
-  localStorage.setItem('phyto_saved', JSON.stringify(state.saved));
+  S.saved.splice(i,1);
+  localStorage.setItem('ps_saved',JSON.stringify(S.saved));
   updateRlBadge();
-  document.getElementById('statSaved').textContent = state.saved.length;
+  document.getElementById('statS').textContent = S.saved.length;
   renderSaved();
 }
+function clearSaved() { S.saved=[]; localStorage.setItem('ps_saved','[]'); updateRlBadge(); document.getElementById('statS').textContent=0; renderSaved(); }
+function updateRlBadge() { const b=document.getElementById('rlBadge'); b.textContent=S.saved.length?`(${S.saved.length})`:''; }
 
-function clearSaved() {
-  state.saved = [];
-  localStorage.setItem('phyto_saved', '[]');
-  updateRlBadge();
-  document.getElementById('statSaved').textContent = 0;
-  renderSaved();
-}
+// ═══════════════════════════════
+// NOTES
+// ═══════════════════════════════
+function saveNotes() { S.notes=document.getElementById('notesArea').value; localStorage.setItem('ps_notes',S.notes); toast('筆記已儲存'); }
+function clearNotes() { document.getElementById('notesArea').value=''; S.notes=''; localStorage.setItem('ps_notes',''); }
+function autoSaveNotes() { S.notes=document.getElementById('notesArea').value; localStorage.setItem('ps_notes',S.notes); }
 
-function updateRlBadge() {
-  document.getElementById('rlBadge').textContent = state.saved.length;
-}
-
-function sortPapers() {
-  const by = document.getElementById('sortSelect').value;
-  if (by === 'date') state.papers.sort((a,b)=>new Date(b.date)-new Date(a.date));
-  if (by === 'title') state.papers.sort((a,b)=>a.title.localeCompare(b.title));
-  renderPapers();
-}
-
-function saveNotes() {
-  state.notes = document.getElementById('notesArea').value;
-  localStorage.setItem('phyto_notes', state.notes);
-  showToast('筆記已儲存 ✓');
-}
-
-function clearNotes() {
-  document.getElementById('notesArea').value = '';
-  state.notes = '';
-  localStorage.setItem('phyto_notes', '');
-}
-
-// Auto-save notes every 30s
-setInterval(() => {
-  state.notes = document.getElementById('notesArea')?.value || '';
-  localStorage.setItem('phyto_notes', state.notes);
-}, 30000);
-
-function setLoading(loading) {
-  const btn = document.getElementById('runBtn');
-  const text = document.getElementById('runBtnText');
-  btn.classList.toggle('loading', loading);
-  text.textContent = loading ? '收集中...' : '🚀 開始收集研究資料';
-
-  const dot = document.getElementById('statusDot');
-  const statusText = document.getElementById('statusText');
-  dot.style.background = loading ? 'var(--amber)' : 'var(--green)';
-  dot.style.boxShadow = loading ? '0 0 8px var(--amber)' : '0 0 8px var(--green)';
-  statusText.textContent = loading ? '收集中...' : '待機中';
-}
-
-function renderSkeletons(n) {
-  return Array(n).fill(0).map(() => `
-    <div class="skeleton-card">
-      <div class="skeleton sk-line w-30"></div>
-      <div class="skeleton sk-line w-80" style="margin-top:10px;height:16px;"></div>
-      <div class="skeleton sk-line w-60" style="margin-top:6px;"></div>
-      <div class="skeleton sk-line w-100 h-tall" style="margin-top:10px;"></div>
-    </div>
-  `).join('');
-}
-
-function showToast(msg, icon='✅') {
-  const t = document.getElementById('toast');
-  document.getElementById('toastMsg').textContent = msg;
-  t.querySelector('span')?.parentNode && (t.innerHTML = `${icon} <span>${msg}</span>`);
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-}
-
-function updateNextRun() {
-  const val = document.getElementById('scheduleSelect').value;
-  const el = document.getElementById('nextRunLabel');
-  if (val === 'manual') { el.textContent = ''; return; }
-  if (val === 'daily') { el.textContent = '下次執行：明日 08:00'; }
-  if (val === 'twice') { el.textContent = '下次執行：今日 20:00'; }
-  if (val === 'weekly') { el.textContent = '下次執行：下週一 08:00'; }
-}
-
+// ═══════════════════════════════
+// EXPORT
+// ═══════════════════════════════
 function exportReport() {
-  if (!state.papers.length) { showToast('請先執行搜尋', '⚠️'); return; }
+  if (!S.papers.length) { toast('⚠️ 請先搜尋'); return; }
   const lines = [
-    `# PhytoScholar 研究報告`,
-    `生成時間：${new Date().toLocaleString('zh-TW')}`,
-    `關鍵字：${state.keywords.join(', ')}`,
-    `共 ${state.papers.length} 篇論文\n`,
-    `## 論文清單`,
-    ...state.papers.map((p,i)=>
-      `${i+1}. [${p.source.toUpperCase()}] ${p.title}\n   作者：${p.authors||'—'}\n   日期：${p.date||'—'}\n   連結：${p.url}\n   摘要：${(p.abstract||'').substring(0,200)}\n`
-    ),
+    `# PhytoScholar 研究報告`,`生成：${new Date().toLocaleString('zh-TW')}`,`關鍵字：${S.keywords.join(', ')}`,`論文數：${S.papers.length}`,``,`## 論文清單`,
+    ...S.papers.map((p,i)=>`${i+1}. [${p.source}] ${p.title}\n   日期：${p.date}　引用：${p.quality?.citations??'—'}\n   連結：${p.url}\n`)
   ];
-  const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `phytoscolar-report-${Date.now()}.txt`;
-  a.click();
-  showToast('報告匯出成功 📥');
+  a.href = URL.createObjectURL(new Blob([lines.join('\n')],{type:'text/plain;charset=utf-8'}));
+  a.download = `phytoscolar-${Date.now()}.txt`;
+  a.click(); toast('報告已匯出 📥');
 }
 
-init();
+// ═══════════════════════════════
+// UTILS
+// ═══════════════════════════════
+function skels(n) {
+  return Array(n).fill(0).map(()=>`<div class="sk-card"><div class="sk-line w20"></div><div class="sk-line w80" style="height:15px;margin-top:8px;"></div><div class="sk-line w40"></div><div class="sk-line w100 tall" style="margin-top:8px;"></div></div>`).join('');
+}
+function sleep(ms) { return new Promise(r=>setTimeout(r,ms)); }
 
-// ─── Load D3 dynamically ───
-(function loadD3() {
-  const s = document.createElement('script');
-  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js';
-  s.onload = () => { window._d3ready = true; };
+// ═══════════════════════════════
+// D3 NETWORK
+// ═══════════════════════════════
+function loadD3() {
+  const s=document.createElement('script');
+  s.src='https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js';
+  s.onload=()=>{ window._d3ok=true; };
   document.head.appendChild(s);
-})();
-
-// ════════════════════════════════════════════════
-// QUALITY ENRICHMENT  (Semantic Scholar + OpenAlex)
-// ════════════════════════════════════════════════
-
-// Cache to avoid repeat API calls across re-renders
-const qualityCache = {};
-
-async function enrichPaperQuality() {
-  // Process in batches of 5 to avoid rate limits
-  const papers = state.papers;
-  for (let i = 0; i < papers.length; i += 5) {
-    const batch = papers.slice(i, i + 5);
-    await Promise.allSettled(batch.map((p, j) => enrichOne(p, i + j)));
-    if (i + 5 < papers.length) await sleep(400); // polite delay
-  }
 }
 
-function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
-
-async function enrichOne(paper, idx) {
-  const el = document.getElementById(`quality-${idx}`);
-  if (!el) return;
-
-  const cacheKey = paper.id || paper.title;
-  if (qualityCache[cacheKey]) {
-    renderQualityBar(el, qualityCache[cacheKey], paper);
-    paper.quality = qualityCache[cacheKey];
-    return;
-  }
-
-  try {
-    let data = null;
-
-    // Try Semantic Scholar by DOI first, then by title
-    const doi = paper.id && paper.id.includes('/') ? paper.id : null;
-    const ssUrl = doi
-      ? `https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}?fields=citationCount,referenceCount,isOpenAccess,publicationVenue,influentialCitationCount,externalIds`
-      : `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(paper.title.substring(0,80))}&limit=1&fields=citationCount,referenceCount,isOpenAccess,publicationVenue,influentialCitationCount`;
-
-    const res = await fetch(ssUrl);  // no custom headers — avoids CORS preflight
-    if (res.ok) {
-      const raw = await res.json();
-      const item = raw.data ? raw.data[0] : raw;
-      if (item && (item.citationCount !== undefined)) {
-        data = {
-          citations: item.citationCount || 0,
-          references: item.referenceCount || 0,
-          influential: item.influentialCitationCount || 0,
-          openAccess: item.isOpenAccess || false,
-          venue: item.publicationVenue?.name || '',
-          ssId: item.paperId || '',
-        };
-      }
-    }
-
-    // If Semantic Scholar gave nothing, try OpenAlex by DOI
-    if (!data && doi) {
-      const oaRes = await fetch(`https://api.openalex.org/works/https://doi.org/${doi}?select=cited_by_count,open_access,host_venue`);
-      if (oaRes.ok) {
-        const oaData = await oaRes.json();
-        data = {
-          citations: oaData.cited_by_count || 0,
-          references: 0,
-          influential: 0,
-          openAccess: oaData.open_access?.is_oa || false,
-          venue: oaData.host_venue?.display_name || '',
-          ssId: '',
-        };
-      }
-    }
-
-    if (!data) data = { citations: null, references: 0, influential: 0, openAccess: false, venue: '', ssId: '' };
-
-    qualityCache[cacheKey] = data;
-    paper.quality = data;
-    if (el) renderQualityBar(el, data, paper);
-
-  } catch(e) {
-    if (el) el.innerHTML = ''; // silently clear skeleton
-  }
-}
-
-function renderQualityBar(el, q, paper) {
-  const cites = q.citations;
-  const citeClass = cites === null ? 'low' : cites >= 100 ? 'high' : cites >= 20 ? 'med' : 'low';
-  const citeLabel = cites === null ? '引用數 —' : `被引 ${cites.toLocaleString()} 次`;
-  const citeTitle = q.influential > 0 ? `其中 ${q.influential} 次具高影響力` : '';
-
-  // Quartile estimation from citations (rough proxy without Scimago)
-  let quartileHTML = '';
-  if (cites !== null && paper.source !== 'arxiv' && paper.source !== 'biorxiv') {
-    const q_est = cites >= 200 ? 'Q1' : cites >= 50 ? 'Q2' : cites >= 10 ? 'Q3' : 'Q4';
-    const q_class = q_est.toLowerCase();
-    quartileHTML = `<span class="quartile-badge ${q_class}" title="依被引次數估算，僅供參考">${q_est} 估</span>`;
-  }
-
-  const oaHTML = q.openAccess
-    ? `<span class="cite-badge oa-badge" title="Open Access 可免費取得全文">🔓 開放取用</span>` : '';
-
-  const retractHTML = paper.retracted
-    ? `<span class="cite-badge retract-badge">⛔ 已撤稿</span>` : '';
-
-  const refHTML = q.references > 0
-    ? `<span class="cite-badge low" title="參考文獻數量">↗ ${q.references} 篇參考</span>` : '';
-
-  el.innerHTML = `
-    <span class="cite-badge ${citeClass}" title="${citeTitle}">📊 ${citeLabel}</span>
-    ${quartileHTML}
-    ${oaHTML}
-    ${refHTML}
-    ${retractHTML}
-  `;
-}
-
-// ════════════════════════════════════════════════
-// CITATION NETWORK  (D3 force-directed graph)
-// ════════════════════════════════════════════════
-
-let networkState = { nodes: [], links: [], simulation: null, svg: null, zoom: null, showLabels: true, minCites: 0 };
+const net = { nodes:[], links:[], sim:null, svg:null, zoom:null, minC:0 };
 
 async function buildNetwork() {
-  if (!window._d3ready) { showToast('D3 載入中，請稍後再試', '⏳'); return; }
-  if (!state.papers.length) { showToast('請先執行搜尋', '⚠️'); return; }
+  if (!window._d3ok) { toast('⏳ D3 載入中，稍後再試'); return; }
+  if (!S.papers.length) { toast('⚠️ 請先搜尋'); return; }
+  document.getElementById('netEmpty').style.display='none';
+  document.getElementById('netContent').style.display='block';
+  document.getElementById('netStats').textContent='建立引用關係中…';
 
-  document.getElementById('networkEmpty').style.display = 'none';
-  document.getElementById('networkContent').style.display = 'block';
-  document.getElementById('networkStats').textContent = '建立引用關係中...';
+  const colors = {pubmed:'#2d6a4f',arxiv:'#1d4e89',crossref:'#6a3fbf',biorxiv:'#b5451b'};
+  const nodes = S.papers.map((p,i)=>({id:i,title:p.title,source:p.source,date:p.date,url:p.url,citations:p.quality?.citations||0,openAccess:p.quality?.openAccess||false,authors:p.authors||'',journal:p.journal||''}));
 
-  // Build nodes from papers (use quality data already fetched)
-  const nodes = state.papers.map((p, i) => ({
-    id: i,
-    title: p.title,
-    source: p.source,
-    date: p.date,
-    url: p.url,
-    citations: p.quality?.citations || 0,
-    openAccess: p.quality?.openAccess || false,
-    journal: p.journal || '',
-    authors: p.authors || '',
-  }));
-
-  // Build links via Semantic Scholar reference data (batch fetch top 8 papers by citation)
-  const topPapers = [...state.papers]
-    .sort((a,b) => (b.quality?.citations||0) - (a.quality?.citations||0))
-    .slice(0, 8);
-
+  // Build links: cross-year + try SS references for top cited
   const links = [];
-  const ssLinks = await fetchCitationLinks(topPapers, state.papers);
-  links.push(...ssLinks);
-
-  // Also add keyword-proximity links (papers sharing same keywords = soft link)
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i+1; j < nodes.length; j++) {
-      if (links.find(l => (l.source===i&&l.target===j)||(l.source===j&&l.target===i))) continue;
-      // Connect papers from same year as soft links
-      if (nodes[i].date && nodes[j].date && nodes[i].date.substring(0,4) === nodes[j].date.substring(0,4)) {
-        if (Math.random() < 0.15) links.push({ source: i, target: j, type: 'soft' });
-      }
+  const top = [...S.papers].sort((a,b)=>(b.quality?.citations||0)-(a.quality?.citations||0)).slice(0,6);
+  for (const p of top) {
+    try {
+      const doi = p.id?.includes('/')?p.id:null; if (!doi) continue;
+      const r = await fetch(`https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}/references?fields=title&limit=15`);
+      if (!r.ok) continue;
+      const d = await r.json();
+      const si = S.papers.indexOf(p);
+      (d.data||[]).forEach(ref=>{
+        const rt=(ref.citedPaper?.title||'').toLowerCase();
+        S.papers.forEach((ap,j)=>{ if(j!==si&&ap.title.toLowerCase().includes(rt.substring(0,25))&&!links.find(l=>l.s===si&&l.t===j)) links.push({s:si,t:j,type:'cite'}); });
+      });
+      await sleep(180);
+    } catch(e){}
+  }
+  // soft co-year links
+  for (let i=0;i<nodes.length;i++) for (let j=i+1;j<nodes.length;j++) {
+    if (!links.find(l=>(l.s===i&&l.t===j)||(l.s===j&&l.t===i))) {
+      if (nodes[i].date&&nodes[j].date&&nodes[i].date.substring(0,4)===nodes[j].date.substring(0,4)&&Math.random()<.12)
+        links.push({s:i,t:j,type:'soft'});
     }
   }
 
-  networkState.nodes = nodes;
-  networkState.links = links;
-  drawNetwork();
-  document.getElementById('networkStats').textContent =
-    `${nodes.length} 篇論文 · ${links.filter(l=>l.type!=='soft').length} 條引用關係 · ${links.filter(l=>l.type==='soft').length} 條同期關聯`;
+  net.nodes=nodes; net.links=links;
+  drawNet(colors);
+  document.getElementById('netStats').textContent=`${nodes.length} 篇 · ${links.filter(l=>l.type==='cite').length} 條引用關係 · ${links.filter(l=>l.type==='soft').length} 條同期關聯`;
 }
 
-async function fetchCitationLinks(topPapers, allPapers) {
-  const links = [];
-  for (const p of topPapers) {
-    try {
-      const doi = p.id && p.id.includes('/') ? p.id : null;
-      if (!doi) continue;
-      const res = await fetch(
-        `https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}/references?fields=title&limit=20`
-      );  // no custom headers
-      if (!res.ok) continue;
-      const data = await res.json();
-      const srcIdx = allPapers.indexOf(p);
-      (data.data || []).forEach(ref => {
-        const refTitle = ref.citedPaper?.title?.toLowerCase() || '';
-        allPapers.forEach((ap, j) => {
-          if (j !== srcIdx && ap.title.toLowerCase().includes(refTitle.substring(0,30))) {
-            if (!links.find(l => l.source===srcIdx && l.target===j))
-              links.push({ source: srcIdx, target: j, type: 'citation' });
-          }
-        });
-      });
-      await sleep(200);
-    } catch(e) {}
-  }
-  return links;
-}
-
-function drawNetwork() {
-  const { nodes, links } = networkState;
-  const svg = d3.select('#network-svg');
-  svg.selectAll('*').remove();
-  const W = document.getElementById('network-svg').clientWidth || 700;
-  const H = 520;
-  svg.attr('viewBox', `0 0 ${W} ${H}`);
-
-  const colorMap = { pubmed:'#3fb950', arxiv:'#58a6ff', crossref:'#bc8cff', biorxiv:'#e07840' };
-
-  // Zoom
-  const zoomG = svg.append('g');
-  const zoom = d3.zoom().scaleExtent([0.2, 4]).on('zoom', e => zoomG.attr('transform', e.transform));
-  svg.call(zoom);
-  networkState.zoom = zoom;
-  networkState.svg = svg;
-
-  // Filter by minCites
-  const minC = networkState.minCites;
-  const visNodes = nodes.filter(n => n.citations >= minC);
-  const visIds = new Set(visNodes.map(n=>n.id));
-  const visLinks = links.filter(l => visIds.has(l.source) && visIds.has(l.target));
-
-  // Simulation
-  const sim = d3.forceSimulation(visNodes)
-    .force('link', d3.forceLink(visLinks).id(d=>d.id).distance(d => d.type==='soft' ? 120 : 70))
-    .force('charge', d3.forceManyBody().strength(-180))
-    .force('center', d3.forceCenter(W/2, H/2))
-    .force('collision', d3.forceCollide().radius(d => nodeR(d) + 6));
-  networkState.simulation = sim;
-
-  // Links
-  const link = zoomG.append('g').selectAll('line').data(visLinks).join('line')
-    .attr('stroke', d => d.type==='citation' ? 'rgba(88,166,255,0.5)' : 'rgba(100,110,120,0.2)')
-    .attr('stroke-width', d => d.type==='citation' ? 1.5 : 0.8)
-    .attr('stroke-dasharray', d => d.type==='soft' ? '4,3' : null);
-
-  // Nodes
-  const tooltip = document.getElementById('nodeTooltip');
-  const node = zoomG.append('g').selectAll('g').data(visNodes).join('g')
-    .attr('cursor', 'pointer')
+function drawNet(colors) {
+  if (!colors) colors={pubmed:'#2d6a4f',arxiv:'#1d4e89',crossref:'#6a3fbf',biorxiv:'#b5451b'};
+  const svg=d3.select('#net-svg'); svg.selectAll('*').remove();
+  const W=document.getElementById('net-svg').clientWidth||720, H=500;
+  svg.attr('viewBox',`0 0 ${W} ${H}`);
+  const vn=net.nodes.filter(n=>n.citations>=net.minC);
+  const vis=new Set(vn.map(n=>n.id));
+  const vl=net.links.filter(l=>vis.has(l.s)&&vis.has(l.t)).map(l=>({source:l.s,target:l.t,type:l.type}));
+  const g=svg.append('g');
+  const zoom=d3.zoom().scaleExtent([.15,5]).on('zoom',e=>g.attr('transform',e.transform));
+  svg.call(zoom); net.svg=svg; net.zoom=zoom;
+  const sim=d3.forceSimulation(vn)
+    .force('link',d3.forceLink(vl).id(d=>d.id).distance(d=>d.type==='soft'?130:65))
+    .force('charge',d3.forceManyBody().strength(-160))
+    .force('center',d3.forceCenter(W/2,H/2))
+    .force('collide',d3.forceCollide().radius(d=>nr(d)+5));
+  net.sim=sim;
+  const link=g.append('g').selectAll('line').data(vl).join('line')
+    .attr('stroke',d=>d.type==='cite'?'rgba(29,78,137,.4)':'rgba(180,175,165,.25)')
+    .attr('stroke-width',d=>d.type==='cite'?1.4:.7)
+    .attr('stroke-dasharray',d=>d.type==='soft'?'4,3':null);
+  const tip=document.getElementById('node-tip');
+  const node=g.append('g').selectAll('g').data(vn).join('g')
+    .attr('cursor','pointer')
     .call(d3.drag()
-      .on('start', (e,d) => { if(!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
-      .on('drag',  (e,d) => { d.fx=e.x; d.fy=e.y; })
-      .on('end',   (e,d) => { if(!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; }))
-    .on('click', (e,d) => { window.open(d.url,'_blank'); })
-    .on('mousemove', (e,d) => {
-      tooltip.style.display = 'block';
-      tooltip.style.left = (e.clientX+14)+'px';
-      tooltip.style.top  = (e.clientY-10)+'px';
-      tooltip.innerHTML = `
-        <div style="font-weight:600;margin-bottom:4px;font-size:12px;">${d.title.substring(0,80)}${d.title.length>80?'…':''}</div>
-        <div style="color:var(--text-muted);font-size:11px;">${d.authors.substring(0,50)} · ${d.date||'—'}</div>
-        <div style="margin-top:6px;display:flex;gap:8px;font-size:11px;font-family:'DM Mono',monospace;">
-          <span style="color:var(--green);">📊 被引 ${d.citations}</span>
-          ${d.openAccess?'<span style="color:var(--green);">🔓 OA</span>':''}
-        </div>
-        <div style="margin-top:4px;font-size:10px;color:var(--text-dim);">點擊開啟論文</div>`;
+      .on('start',(e,d)=>{if(!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y;})
+      .on('drag',(e,d)=>{d.fx=e.x;d.fy=e.y;})
+      .on('end',(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null;}))
+    .on('click',(e,d)=>window.open(d.url,'_blank'))
+    .on('mousemove',(e,d)=>{
+      tip.style.display='block'; tip.style.left=(e.clientX+14)+'px'; tip.style.top=(e.clientY-10)+'px';
+      tip.innerHTML=`<div style="font-weight:600;margin-bottom:3px;font-family:var(--serif);font-size:.82rem;">${d.title.substring(0,72)}${d.title.length>72?'…':''}</div><div style="font-size:.72rem;color:var(--ink-3);">${d.authors.substring(0,45)} · ${d.date||'—'}</div><div style="margin-top:5px;font-family:var(--mono);font-size:.7rem;color:var(--accent);">📊 被引 ${d.citations}${d.openAccess?' · 🔓 OA':''}</div><div style="font-size:.68rem;color:var(--ink-4);margin-top:3px;">點擊開啟原文</div>`;
     })
-    .on('mouseleave', () => { tooltip.style.display='none'; });
-
-  // OA ring
-  node.filter(d=>d.openAccess).append('circle')
-    .attr('r', d => nodeR(d)+3)
-    .attr('fill','none')
-    .attr('stroke',colorMap[d=>d.source]||'#3fb950')
-    .attr('stroke-width',1.5)
-    .attr('stroke-dasharray','3,2')
-    .attr('opacity',0.6);
-
-  node.append('circle')
-    .attr('r', d => nodeR(d))
-    .attr('fill', d => colorMap[d.source] || '#7d8590')
-    .attr('fill-opacity', 0.85)
-    .attr('stroke', '#0d1117')
-    .attr('stroke-width', 1.5);
-
-  // Labels
-  const label = node.append('text')
-    .attr('dy', d => -nodeR(d)-4)
-    .attr('text-anchor', 'middle')
-    .attr('font-size', '10px')
-    .attr('fill', 'var(--text-muted)')
-    .attr('pointer-events','none')
-    .text(d => d.title.substring(0,28)+(d.title.length>28?'…':''))
-    .attr('class','net-label');
-
-  sim.on('tick', () => {
-    link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
-    node.attr('transform', d=>`translate(${d.x},${d.y})`);
-  });
-
-  // Fade in
-  node.attr('opacity',0).transition().duration(600).delay((_,i)=>i*30).attr('opacity',1);
+    .on('mouseleave',()=>tip.style.display='none');
+  node.append('circle').attr('r',d=>nr(d)).attr('fill',d=>colors[d.source]||'#888').attr('fill-opacity',.82).attr('stroke','#f9f7f4').attr('stroke-width',1.5);
+  const lab=node.append('text').attr('dy',d=>-nr(d)-3).attr('text-anchor','middle').attr('font-size','9px').attr('fill','#888').attr('pointer-events','none').text(d=>d.title.substring(0,24)+(d.title.length>24?'…':'')).attr('class','net-lab');
+  sim.on('tick',()=>{ link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y); node.attr('transform',d=>`translate(${d.x},${d.y})`); });
+  node.attr('opacity',0).transition().duration(500).delay((_,i)=>i*25).attr('opacity',1);
 }
 
-function nodeR(d) {
-  const c = d.citations || 0;
-  return Math.max(6, Math.min(28, 6 + Math.sqrt(c) * 1.2));
-}
+function nr(d) { return Math.max(5,Math.min(26,5+Math.sqrt(d.citations||0)*1.1)); }
+function toggleLabels() { d3.selectAll('.net-lab').attr('display',document.getElementById('showLabels').checked?null:'none'); }
+function filterNet(v) { net.minC=parseInt(v); document.getElementById('minCiteV').textContent=v; if(net.nodes.length)drawNet(); }
+function resetZoom() { if(net.svg&&net.zoom)net.svg.transition().duration(400).call(net.zoom.transform,d3.zoomIdentity); }
 
-function toggleLabels() {
-  networkState.showLabels = document.getElementById('showLabels').checked;
-  d3.selectAll('.net-label').attr('display', networkState.showLabels ? null : 'none');
-}
-
-function filterNetworkByCites(val) {
-  networkState.minCites = parseInt(val);
-  document.getElementById('minCiteVal').textContent = val;
-  if (networkState.nodes.length) drawNetwork();
-}
-
-function resetNetworkZoom() {
-  if (networkState.svg && networkState.zoom)
-    networkState.svg.transition().duration(500).call(networkState.zoom.transform, d3.zoomIdentity);
-}
+init();
 </script>
 </body>
 </html>
