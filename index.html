@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>植物科學研究助理 · PhytoScholar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Mono:wght@300;400;500&family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface2: #1c2330;
+    --border: #21262d;
+    --green: #3fb950;
+    --green-dim: #1a4020;
+    --green-glow: rgba(63,185,80,0.15);
+    --amber: #d29922;
+    --amber-dim: #3d2c00;
+    --blue: #58a6ff;
+    --blue-dim: #0d2744;
+    --red: #f85149;
+    --purple: #bc8cff;
+    --text: #e6edf3;
+    --text-muted: #7d8590;
+    --text-dim: #484f58;
+    --radius: 8px;
+    --radius-lg: 14px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Animated background */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 40% at 10% 20%, rgba(63,185,80,0.04) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 60% at 90% 80%, rgba(88,166,255,0.04) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ─── Layout ─── */
+  .app { display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; }
+
+  header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 28px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(13,17,23,0.8);
+    backdrop-filter: blur(12px);
+    position: sticky; top: 0; z-index: 100;
+  }
+
+  .logo {
+    display: flex; align-items: baseline; gap: 10px;
+  }
+  .logo-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px;
+    color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .logo-name span { color: var(--green); }
+  .logo-tag {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 2px 7px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+  }
+
+  .header-right {
+    display: flex; align-items: center; gap: 12px;
+  }
+
+  .status-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 8px var(--green);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.4; }
+  }
+
+  .btn {
+    padding: 7px 16px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    cursor: pointer;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    transition: all 0.2s;
+  }
+  .btn:hover { border-color: var(--green); color: var(--green); }
+  .btn-primary {
+    background: var(--green);
+    color: #0d1117;
+    border-color: var(--green);
+    font-weight: 700;
+  }
+  .btn-primary:hover { background: #52d168; color: #0d1117; }
+
+  main {
+    display: grid;
+    grid-template-columns: 280px 1fr;
+    flex: 1;
+    gap: 0;
+  }
+
+  /* ─── Sidebar ─── */
+  aside {
+    border-right: 1px solid var(--border);
+    background: var(--surface);
+    padding: 20px 16px;
+    display: flex; flex-direction: column; gap: 20px;
+    min-height: calc(100vh - 57px);
+  }
+
+  .section-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-dim);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  /* Keyword input area */
+  .keyword-input-wrap {
+    display: flex; gap: 6px;
+  }
+  .keyword-input {
+    flex: 1;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 8px 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .keyword-input:focus { border-color: var(--green); }
+  .keyword-input::placeholder { color: var(--text-dim); }
+
+  .keyword-add-btn {
+    width: 34px; height: 34px;
+    background: var(--green-dim);
+    border: 1px solid var(--green);
+    border-radius: var(--radius);
+    color: var(--green);
+    font-size: 18px;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+  .keyword-add-btn:hover { background: var(--green); color: #0d1117; }
+
+  .keyword-tags {
+    display: flex; flex-wrap: wrap; gap: 6px;
+    margin-top: 4px;
+  }
+
+  .keyword-tag {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: var(--green-dim);
+    border: 1px solid rgba(63,185,80,0.3);
+    color: var(--green);
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: 'DM Mono', monospace;
+    cursor: default;
+  }
+  .keyword-tag .rm {
+    cursor: pointer; opacity: 0.6; font-size: 14px;
+    line-height: 1; transition: opacity 0.2s;
+  }
+  .keyword-tag .rm:hover { opacity: 1; }
+
+  /* Source toggles */
+  .source-toggle {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 8px 10px;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    margin-bottom: 6px;
+    background: var(--bg);
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .source-toggle:hover { border-color: var(--text-muted); }
+  .source-toggle.active { border-color: var(--green); background: var(--green-dim); }
+  .source-info { display: flex; align-items: center; gap: 8px; }
+  .source-icon { font-size: 16px; }
+  .source-name { font-size: 13px; }
+  .toggle-switch {
+    width: 30px; height: 16px;
+    background: var(--border);
+    border-radius: 8px;
+    position: relative;
+    transition: background 0.2s;
+  }
+  .source-toggle.active .toggle-switch { background: var(--green); }
+  .toggle-switch::after {
+    content: '';
+    position: absolute;
+    width: 12px; height: 12px;
+    background: white;
+    border-radius: 50%;
+    top: 2px; left: 2px;
+    transition: transform 0.2s;
+  }
+  .source-toggle.active .toggle-switch::after { transform: translateX(14px); }
+
+  /* Schedule */
+  .schedule-select {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 8px 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    outline: none;
+    appearance: none;
+  }
+
+  .run-btn {
+    width: 100%;
+    padding: 11px;
+    background: var(--green);
+    color: #0d1117;
+    border: none;
+    border-radius: var(--radius);
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    margin-top: auto;
+  }
+  .run-btn:hover { background: #52d168; transform: translateY(-1px); }
+  .run-btn:active { transform: translateY(0); }
+  .run-btn.loading { background: var(--green-dim); color: var(--green); cursor: not-allowed; }
+  .run-btn .spinner {
+    width: 14px; height: 14px;
+    border: 2px solid currentColor;
+    border-top-color: transparent;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    display: none;
+  }
+  .run-btn.loading .spinner { display: block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* ─── Main Content ─── */
+  .content {
+    padding: 24px 28px;
+    display: flex; flex-direction: column; gap: 24px;
+    overflow-y: auto;
+  }
+
+  /* Stats bar */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 18px;
+    display: flex; flex-direction: column; gap: 4px;
+    transition: border-color 0.2s;
+  }
+  .stat-card:hover { border-color: var(--text-muted); }
+  .stat-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    color: var(--text-muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .stat-value {
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--text);
+    line-height: 1;
+  }
+  .stat-value.green { color: var(--green); }
+  .stat-value.amber { color: var(--amber); }
+  .stat-value.blue { color: var(--blue); }
+  .stat-value.purple { color: var(--purple); }
+  .stat-sub {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-top: 2px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: flex; gap: 2px;
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0;
+  }
+  .tab {
+    padding: 8px 18px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    cursor: pointer;
+    font-size: 13px;
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    border-bottom: none;
+    transition: all 0.2s;
+    position: relative;
+    bottom: -1px;
+  }
+  .tab:hover { color: var(--text); }
+  .tab.active {
+    color: var(--text);
+    background: var(--bg);
+    border-color: var(--border);
+    border-bottom-color: var(--bg);
+  }
+
+  /* Section headers */
+  .section-header {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-bottom: 14px;
+  }
+  .section-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    color: var(--text);
+  }
+  .section-title small {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-style: normal;
+    margin-left: 10px;
+  }
+
+  /* Research gap card */
+  .gap-card {
+    background: linear-gradient(135deg, var(--amber-dim) 0%, var(--bg) 100%);
+    border: 1px solid var(--amber);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    margin-bottom: 12px;
+    position: relative;
+    overflow: hidden;
+  }
+  .gap-card::before {
+    content: '⚠';
+    position: absolute;
+    right: 16px; top: 14px;
+    font-size: 20px;
+    opacity: 0.3;
+  }
+  .gap-title {
+    font-weight: 700;
+    color: var(--amber);
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+  .gap-body { color: var(--text); line-height: 1.7; font-size: 13px; }
+  .gap-keywords {
+    margin-top: 10px;
+    display: flex; flex-wrap: wrap; gap: 5px;
+  }
+  .gap-kw {
+    background: rgba(210,153,34,0.15);
+    border: 1px solid rgba(210,153,34,0.3);
+    color: var(--amber);
+    padding: 2px 9px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+  }
+
+  /* Paper card */
+  .paper-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    transition: all 0.2s;
+    position: relative;
+  }
+  .paper-card:hover {
+    border-color: var(--blue);
+    transform: translateX(2px);
+  }
+  .paper-meta {
+    display: flex; align-items: center; gap: 8px;
+    margin-bottom: 8px;
+  }
+  .paper-source-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px;
+    padding: 2px 8px;
+    border-radius: 20px;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+  .badge-arxiv { background: rgba(88,166,255,0.15); color: var(--blue); border: 1px solid rgba(88,166,255,0.3); }
+  .badge-pubmed { background: rgba(63,185,80,0.15); color: var(--green); border: 1px solid rgba(63,185,80,0.3); }
+  .badge-crossref { background: rgba(188,140,255,0.15); color: var(--purple); border: 1px solid rgba(188,140,255,0.3); }
+  .badge-twitter { background: rgba(88,166,255,0.1); color: #4ea2e8; border: 1px solid rgba(88,166,255,0.2); }
+  .badge-biorxiv { background: rgba(183,100,50,0.15); color: #e07840; border: 1px solid rgba(183,100,50,0.35); }
+  .paper-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-muted); }
+  .paper-title {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+  .paper-title a { color: inherit; text-decoration: none; }
+  .paper-title a:hover { color: var(--blue); text-decoration: underline; }
+  .paper-authors { font-size: 12px; color: var(--text-muted); margin-bottom: 6px; }
+  .paper-abstract {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.7;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .paper-abstract.expanded { -webkit-line-clamp: unset; }
+  .paper-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px solid var(--border);
+  }
+  .paper-keywords { display: flex; gap: 5px; flex-wrap: wrap; }
+  .pkw {
+    background: var(--blue-dim);
+    color: var(--blue);
+    border: 1px solid rgba(88,166,255,0.2);
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-family: 'DM Mono', monospace;
+  }
+  .paper-actions { display: flex; gap: 6px; }
+  .paper-action-btn {
+    background: none; border: 1px solid var(--border);
+    border-radius: 6px; color: var(--text-muted);
+    padding: 4px 10px; cursor: pointer; font-size: 12px;
+    transition: all 0.2s;
+    font-family: 'Noto Sans TC', sans-serif;
+  }
+  .paper-action-btn:hover { border-color: var(--text-muted); color: var(--text); }
+  .paper-action-btn.saved { border-color: var(--amber); color: var(--amber); background: var(--amber-dim); }
+
+  /* Tweet card */
+  .tweet-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 16px 20px;
+    margin-bottom: 10px;
+    transition: border-color 0.2s;
+  }
+  .tweet-card:hover { border-color: #4ea2e8; }
+  .tweet-header {
+    display: flex; align-items: center; gap: 10px;
+    margin-bottom: 10px;
+  }
+  .tweet-avatar {
+    width: 34px; height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1da1f2, #0d84d0);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: 700; color: white;
+    flex-shrink: 0;
+  }
+  .tweet-user-name { font-weight: 600; font-size: 13px; }
+  .tweet-handle { font-size: 12px; color: var(--text-muted); }
+  .tweet-date { font-family: 'DM Mono', monospace; font-size: 11px; color: var(--text-dim); margin-left: auto; }
+  .tweet-text { font-size: 13px; line-height: 1.7; color: var(--text); }
+  .tweet-text a { color: #4ea2e8; text-decoration: none; }
+  .tweet-stats {
+    display: flex; gap: 14px; margin-top: 10px;
+  }
+  .tweet-stat { font-size: 12px; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
+
+  /* Summary panel */
+  .summary-box {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px 22px;
+    line-height: 1.8;
+    font-size: 13.5px;
+    color: var(--text);
+  }
+  .summary-box h4 {
+    font-family: 'Playfair Display', serif;
+    font-size: 15px;
+    color: var(--green);
+    margin-top: 14px;
+    margin-bottom: 6px;
+  }
+  .summary-box h4:first-child { margin-top: 0; }
+  .summary-box p { color: var(--text-muted); margin-bottom: 10px; }
+  .summary-box ul { padding-left: 18px; color: var(--text-muted); }
+  .summary-box li { margin-bottom: 5px; }
+
+  /* Loading skeleton */
+  .skeleton {
+    background: linear-gradient(90deg, var(--surface) 25%, var(--surface2) 50%, var(--surface) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    border-radius: 6px;
+  }
+  @keyframes shimmer { to { background-position: -200% 0; } }
+
+  .skeleton-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    margin-bottom: 10px;
+  }
+  .sk-line { height: 13px; margin-bottom: 8px; }
+  .sk-line.w-30 { width: 30%; }
+  .sk-line.w-60 { width: 60%; }
+  .sk-line.w-80 { width: 80%; }
+  .sk-line.w-100 { width: 100%; }
+  .sk-line.h-tall { height: 50px; }
+
+  /* Empty state */
+  .empty-state {
+    text-align: center; padding: 60px 30px;
+    color: var(--text-muted);
+  }
+  .empty-icon { font-size: 48px; margin-bottom: 16px; opacity: 0.4; }
+  .empty-title { font-size: 16px; margin-bottom: 8px; color: var(--text-dim); }
+  .empty-sub { font-size: 13px; }
+
+  /* Toast */
+  .toast {
+    position: fixed; bottom: 24px; right: 24px;
+    background: var(--surface2);
+    border: 1px solid var(--green);
+    border-radius: var(--radius);
+    padding: 12px 18px;
+    color: var(--text);
+    font-size: 13px;
+    z-index: 999;
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .toast.show { transform: translateX(0); }
+
+  /* Saved notes area */
+  .notes-area {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 12px;
+    font-family: 'Noto Sans TC', sans-serif;
+    font-size: 13px;
+    min-height: 100px;
+    resize: vertical;
+    outline: none;
+    line-height: 1.7;
+  }
+  .notes-area:focus { border-color: var(--green); }
+
+  /* Tab panels */
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* Highlight */
+  mark {
+    background: rgba(63,185,80,0.2);
+    color: var(--green);
+    padding: 1px 3px;
+    border-radius: 3px;
+  }
+
+  /* Reading list counter */
+  .rl-badge {
+    background: var(--amber);
+    color: #0d1117;
+    border-radius: 20px;
+    padding: 1px 7px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-left: 6px;
+  }
+
+  /* Progress bar */
+  .progress-bar-wrap {
+    height: 3px; background: var(--border); border-radius: 2px;
+    overflow: hidden; margin-top: 6px;
+  }
+  .progress-bar { height: 100%; background: var(--green); border-radius: 2px; transition: width 0.5s; }
+
+  /* Compact layout for saved list */
+  .saved-card {
+    display: flex; gap: 12px;
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 12px 16px;
+    margin-bottom: 8px; align-items: flex-start;
+  }
+  .saved-card-icon { font-size: 20px; flex-shrink: 0; margin-top: 2px; }
+  .saved-card-body { flex: 1; min-width: 0; }
+  .saved-card-title { font-size: 13px; font-weight: 500; margin-bottom: 3px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .saved-card-meta { font-size: 11px; color: var(--text-muted); font-family: 'DM Mono', monospace; }
+  .saved-card-link { font-size: 12px; color: var(--blue); text-decoration: none; }
+  .saved-card-link:hover { text-decoration: underline; }
+
+  /* API Key Input */
+  .api-key-section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 18px 20px;
+    margin-bottom: 20px;
+  }
+  .api-key-title { font-size: 13px; font-weight: 600; color: var(--amber); margin-bottom: 6px; }
+  .api-key-sub { font-size: 12px; color: var(--text-muted); margin-bottom: 12px; line-height: 1.6; }
+  .api-key-input {
+    width: 100%;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    color: var(--text);
+    padding: 8px 12px;
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+  .api-key-input:focus { border-color: var(--amber); }
+
+  #crossDomainToggle { display:flex; align-items:center; cursor:pointer; }
+  #crossDomainToggle.active .toggle-switch { background: var(--blue); }
+  #crossDomainToggle .toggle-switch::after { content:''; position:absolute; width:12px; height:12px; background:white; border-radius:50%; top:2px; left:2px; transition:transform 0.2s; }
+  #crossDomainToggle.active .toggle-switch::after { transform: translateX(14px); }
+
+  #crossDomainToggle { display:flex; align-items:center; cursor:pointer; }
+  #crossDomainToggle.active .toggle-switch { background: var(--blue); }
+  #crossDomainToggle .toggle-switch::after { content:''; position:absolute; width:12px; height:12px; background:white; border-radius:50%; top:2px; left:2px; transition:transform 0.2s; }
+  #crossDomainToggle.active .toggle-switch::after { transform: translateX(14px); }
+
+  /* ─── Quality indicators ─── */
+  .quality-bar {
+    display: flex; align-items: center; gap: 6px;
+    margin: 6px 0 4px;
+    flex-wrap: wrap;
+  }
+  .cite-badge {
+    display: inline-flex; align-items: center; gap: 4px;
+    font-family: 'DM Mono', monospace; font-size: 11px;
+    padding: 2px 8px; border-radius: 20px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--text-muted); cursor: default;
+    transition: border-color 0.2s;
+  }
+  .cite-badge.high { background: rgba(63,185,80,0.1); border-color: rgba(63,185,80,0.35); color: var(--green); }
+  .cite-badge.med  { background: rgba(88,166,255,0.1); border-color: rgba(88,166,255,0.3); color: var(--blue); }
+  .cite-badge.low  { background: var(--surface2); color: var(--text-dim); }
+  .cite-badge.loading { animation: shimmer 1.5s infinite; background-size:200% 100%;
+    background: linear-gradient(90deg, var(--surface2) 25%, var(--surface) 50%, var(--surface2) 75%); }
+  .oa-badge { background: rgba(63,185,80,0.08); border: 1px solid rgba(63,185,80,0.2); color: var(--green); }
+  .retract-badge { background: rgba(248,81,73,0.1); border: 1px solid rgba(248,81,73,0.3); color: var(--red); font-weight:700; }
+  .quartile-badge { font-family:'DM Mono',monospace; font-size:10px; padding:2px 7px; border-radius:20px; }
+  .q1 { background:rgba(63,185,80,0.15); color:var(--green); border:1px solid rgba(63,185,80,0.3); }
+  .q2 { background:rgba(88,166,255,0.1); color:var(--blue); border:1px solid rgba(88,166,255,0.25); }
+  .q3 { background:rgba(210,153,34,0.1); color:var(--amber); border:1px solid rgba(210,153,34,0.25); }
+  .q4 { background:rgba(248,81,73,0.08); color:var(--red); border:1px solid rgba(248,81,73,0.2); }
+
+  /* ─── Network panel ─── */
+  #network-svg { width:100%; height:520px; cursor:grab; }
+  #network-svg:active { cursor:grabbing; }
+  .network-controls {
+    display:flex; gap:8px; align-items:center; margin-bottom:14px; flex-wrap:wrap;
+  }
+  .network-legend {
+    display:flex; gap:14px; font-size:11px; color:var(--text-muted);
+    font-family:'DM Mono',monospace; flex-wrap:wrap; margin-top:10px;
+  }
+  .legend-dot { width:10px;height:10px;border-radius:50%;display:inline-block;margin-right:4px; }
+  #nodeTooltip {
+    position:fixed; background:var(--surface2); border:1px solid var(--border);
+    border-radius:var(--radius); padding:10px 14px; font-size:12px;
+    max-width:280px; pointer-events:none; z-index:999; display:none;
+    line-height:1.6; color:var(--text);
+  }
+
+  /* Responsive */
+  @media (max-width: 900px) {
+    main { grid-template-columns: 1fr; }
+    aside { min-height: auto; border-right: none; border-bottom: 1px solid var(--border); }
+    .stats-bar { grid-template-columns: repeat(2,1fr); }
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- Header -->
+  <header>
+    <div class="logo">
+      <span class="logo-name">Phyto<span>Scholar</span></span>
+      <span class="logo-tag">β · 植物科學研究助理</span>
+    </div>
+    <div class="header-right">
+      <div class="status-dot" id="statusDot"></div>
+      <span id="statusText" style="font-size:12px;color:var(--text-muted)">待機中</span>
+      <button class="btn" onclick="exportReport()">📥 匯出報告</button>
+    </div>
+  </header>
+
+  <main>
+    <!-- Sidebar -->
+    <aside>
+      <div>
+        <div class="section-label">🔬 研究關鍵字</div>
+        <div class="keyword-input-wrap">
+          <input class="keyword-input" id="kwInput" placeholder="輸入關鍵字..." 
+                 onkeydown="if(event.key==='Enter')addKeyword()">
+          <button class="keyword-add-btn" onclick="addKeyword()">+</button>
+        </div>
+        <div class="keyword-tags" id="kwTags"></div>
+      </div>
+
+      <!-- Cross-domain search panel -->
+      <div id="crossDomainPanel">
+        <div class="section-label" style="display:flex;align-items:center;justify-content:space-between;">
+          <span>🔬 跨界搜尋</span>
+          <div class="source-toggle active" id="crossDomainToggle" onclick="toggleCrossDomain()"
+               style="border:none;background:none;padding:0;margin:0;width:auto;">
+            <div class="toggle-switch" style="margin:0;"></div>
+          </div>
+        </div>
+        <div id="crossDomainBody" style="margin-top:8px;">
+          <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;line-height:1.6;">
+            自動同步搜尋動物／微生物中相同機制的研究，供跨物種比較
+          </div>
+          <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">搜尋物種範圍：</div>
+          <div id="orgTags" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;"></div>
+          <div style="display:flex;gap:6px;">
+            <input class="keyword-input" id="orgInput" placeholder="新增物種／領域..." 
+                   style="font-size:12px;padding:6px 10px;"
+                   onkeydown="if(event.key==='Enter')addOrganism()">
+            <button class="keyword-add-btn" onclick="addOrganism()" style="width:28px;height:28px;font-size:14px;">+</button>
+          </div>
+        </div>
+      </div>
+        <div class="section-label">📡 資料來源</div>
+        <div class="source-toggle active" id="src-pubmed" onclick="toggleSource('pubmed')">
+          <div class="source-info">
+            <span class="source-icon">🧬</span>
+            <span class="source-name">PubMed / NCBI</span>
+          </div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="source-toggle active" id="src-arxiv" onclick="toggleSource('arxiv')">
+          <div class="source-info">
+            <span class="source-icon">📄</span>
+            <span class="source-name">arXiv</span>
+          </div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="source-toggle active" id="src-crossref" onclick="toggleSource('crossref')">
+          <div class="source-info">
+            <span class="source-icon">📚</span>
+            <span class="source-name">CrossRef 期刊</span>
+          </div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="source-toggle active" id="src-biorxiv" onclick="toggleSource('biorxiv')">
+          <div class="source-info">
+            <span class="source-icon">🧪</span>
+            <span class="source-name">bioRxiv 預印本</span>
+          </div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="source-toggle active" id="src-twitter" onclick="toggleSource('twitter')">
+          <div class="source-info">
+            <span class="source-icon">🐦</span>
+            <span class="source-name">X (Twitter) 學術圈</span>
+          </div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div class="source-toggle" id="src-semantic" onclick="toggleSource('semantic')">
+          <div class="source-info">
+            <span class="source-icon">🧠</span>
+            <span class="source-name">Semantic Scholar</span>
+          </div>
+          <div class="toggle-switch"></div>
+        </div>
+        <div style="font-size:11px;color:var(--text-dim);margin-top:8px;line-height:1.6;">
+          ℹ️ PubMed / arXiv / CrossRef / bioRxiv 均為免費開放 API。Twitter 需後端授權。
+        </div>
+      </div>
+
+      <div>
+        <div class="section-label">⚙️ Anthropic API Key <span style="color:var(--text-dim);font-size:9px;letter-spacing:0;">（選填）</span></div>
+        <div style="font-size:11px;color:var(--text-muted);margin-bottom:8px;line-height:1.6;">
+          用於 AI 摘要、研究缺口、跨界分析。不填仍可正常搜尋文獻。<br>
+          取得：<a href="https://console.anthropic.com" target="_blank" style="color:var(--blue);text-decoration:none;">console.anthropic.com</a> → API Keys
+        </div>
+        <input class="api-key-input" type="password" id="apiKeyInput" placeholder="選填：sk-ant-api03-..." 
+               oninput="saveApiKey(this.value)">
+      </div>
+
+      <div>
+        <div class="section-label">🕐 自動更新排程</div>
+        <select class="schedule-select" id="scheduleSelect">
+          <option value="manual">手動執行</option>
+          <option value="daily" selected>每日一次</option>
+          <option value="twice">每日兩次</option>
+          <option value="weekly">每週一次</option>
+        </select>
+        <div id="nextRunLabel" style="font-size:11px;color:var(--text-dim);margin-top:6px;"></div>
+      </div>
+
+      <div>
+        <div class="section-label">📊 論文數量上限</div>
+        <div style="display:flex;align-items:center;gap:10px;">
+          <input type="range" id="limitSlider" min="5" max="50" value="20" 
+                 oninput="document.getElementById('limitVal').textContent=this.value"
+                 style="flex:1;accent-color:var(--green);">
+          <span id="limitVal" style="font-family:'DM Mono',monospace;font-size:13px;color:var(--green);width:28px;">20</span>
+        </div>
+      </div>
+
+      <button class="run-btn" id="runBtn" onclick="runSearch()">
+        <div class="spinner"></div>
+        <span id="runBtnText">🚀 開始收集研究資料</span>
+      </button>
+    </aside>
+
+    <!-- Main content -->
+    <div class="content">
+
+      <!-- Stats bar -->
+      <div class="stats-bar">
+        <div class="stat-card">
+          <div class="stat-label">PAPERS FOUND</div>
+          <div class="stat-value blue" id="statPapers">0</div>
+          <div class="stat-sub">本次搜尋結果</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">RESEARCH GAPS</div>
+          <div class="stat-value amber" id="statGaps">0</div>
+          <div class="stat-sub">AI 偵測缺口</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">SAVED</div>
+          <div class="stat-value green" id="statSaved">0</div>
+          <div class="stat-sub">已儲存至閱讀清單</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">LAST RUN</div>
+          <div class="stat-value" id="statTime" style="font-size:14px;margin-top:4px;color:var(--text-muted)">—</div>
+          <div class="stat-sub">最後更新時間</div>
+        </div>
+      </div>
+
+      <!-- Tabs -->
+      <div>
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab('overview')">📋 AI 摘要總覽</div>
+          <div class="tab" onclick="switchTab('papers')">📄 期刊論文</div>
+          <div class="tab" onclick="switchTab('cross')">🔬 跨界比較</div>
+          <div class="tab" onclick="switchTab('network')">🕸️ 引用網絡</div>
+          <div class="tab" onclick="switchTab('twitter')">🐦 學術社群討論</div>
+          <div class="tab" onclick="switchTab('gaps')">🔍 研究缺口分析</div>
+          <div class="tab" onclick="switchTab('saved')">🔖 閱讀清單 <span class="rl-badge" id="rlBadge">0</span></div>
+          <div class="tab" onclick="switchTab('notes')">📝 筆記</div>
+        </div>
+
+        <!-- Overview Tab -->
+        <div class="tab-panel active" id="panel-overview" style="padding-top:20px;">
+          <div class="empty-state" id="overviewEmpty">
+            <div class="empty-icon">🌿</div>
+            <div class="empty-title">歡迎使用 PhytoScholar</div>
+            <div class="empty-sub">在左側輸入研究關鍵字，點擊「開始收集研究資料」<br>AI 將自動整理文獻並分析研究缺口</div>
+          </div>
+          <div id="overviewContent" style="display:none;">
+            <div class="summary-box" id="summaryBox"></div>
+          </div>
+        </div>
+
+        <!-- Cross-domain Tab -->
+        <div class="tab-panel" id="panel-cross" style="padding-top:20px;">
+          <div class="section-header">
+            <div class="section-title">跨界文獻比較 <small id="crossCount"></small></div>
+          </div>
+          <div id="crossAIBox" style="display:none;margin-bottom:20px;">
+            <div class="summary-box" id="crossAISummary"></div>
+          </div>
+          <div id="crossList">
+            <div class="empty-state">
+              <div class="empty-icon">🔬</div>
+              <div class="empty-title">尚無跨界資料</div>
+              <div class="empty-sub">啟用跨界搜尋並執行後，將在此顯示動物／微生物相關文獻</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Network Tab -->
+        <div class="tab-panel" id="panel-network" style="padding-top:20px;">
+          <div class="section-header">
+            <div class="section-title">引用網絡圖</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn" onclick="resetNetworkZoom()" style="font-size:12px;padding:5px 12px;">重置視角</button>
+              <button class="btn btn-primary" onclick="buildNetwork()" style="font-size:12px;padding:5px 12px;">重新產生</button>
+            </div>
+          </div>
+          <div id="networkEmpty" class="empty-state">
+            <div class="empty-icon">🕸️</div>
+            <div class="empty-title">尚無網絡資料</div>
+            <div class="empty-sub">執行搜尋後，點擊「重新產生」即可建立引用關係圖<br>節點大小代表被引次數，顏色代表來源資料庫</div>
+          </div>
+          <div id="networkContent" style="display:none;">
+            <div class="network-controls">
+              <span style="font-size:12px;color:var(--text-muted);">拖曳移動・滾輪縮放・點擊節點查看詳情</span>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;">
+                <input type="checkbox" id="showLabels" checked onchange="toggleLabels()" style="accent-color:var(--green);"> 顯示標籤
+              </label>
+              <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-muted);cursor:pointer;">
+                最少引用次數
+                <input type="range" id="minCiteFilter" min="0" max="500" value="0" style="width:80px;accent-color:var(--green);" oninput="filterNetworkByCites(this.value)">
+                <span id="minCiteVal" style="font-family:'DM Mono',monospace;color:var(--green);width:30px;">0</span>
+              </label>
+            </div>
+            <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);overflow:hidden;position:relative;">
+              <svg id="network-svg"></svg>
+            </div>
+            <div class="network-legend">
+              <span><span class="legend-dot" style="background:#3fb950;"></span>PubMed</span>
+              <span><span class="legend-dot" style="background:#58a6ff;"></span>arXiv</span>
+              <span><span class="legend-dot" style="background:#bc8cff;"></span>CrossRef</span>
+              <span><span class="legend-dot" style="background:#e07840;"></span>bioRxiv</span>
+              <span><span class="legend-dot" style="background:var(--text-dim);"></span>節點大小 = 被引次數</span>
+            </div>
+            <div id="networkStats" style="margin-top:12px;font-size:12px;color:var(--text-muted);font-family:'DM Mono',monospace;"></div>
+          </div>
+        </div>
+
+        <!-- Papers Tab -->
+        <div class="tab-panel" id="panel-papers" style="padding-top:20px;">
+          <div class="section-header">
+            <div class="section-title">期刊論文 <small id="paperCount"></small></div>
+            <div style="display:flex;gap:8px;">
+              <select id="sortSelect" style="background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);color:var(--text);padding:5px 10px;font-size:12px;outline:none;" onchange="sortPapers()">
+                <option value="date">按日期排序</option>
+                <option value="title">按標題排序</option>
+              </select>
+            </div>
+          </div>
+          <div id="papersList">
+            <div class="empty-state">
+              <div class="empty-icon">📄</div>
+              <div class="empty-title">尚無論文資料</div>
+              <div class="empty-sub">請先執行搜尋</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Twitter Tab -->
+        <div class="tab-panel" id="panel-twitter" style="padding-top:20px;">
+          <div class="section-header">
+            <div class="section-title">學術社群討論</div>
+          </div>
+          <div id="twitterList">
+            <div class="empty-state">
+              <div class="empty-icon">🐦</div>
+              <div class="empty-title">尚無社群資料</div>
+              <div class="empty-sub">搜尋後將顯示 X (Twitter) 學術討論</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Gaps Tab -->
+        <div class="tab-panel" id="panel-gaps" style="padding-top:20px;">
+          <div id="gapsList">
+            <div class="empty-state">
+              <div class="empty-icon">🔍</div>
+              <div class="empty-title">研究缺口分析</div>
+              <div class="empty-sub">AI 將在搜尋完成後自動分析現有研究缺口</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Saved Tab -->
+        <div class="tab-panel" id="panel-saved" style="padding-top:20px;">
+          <div class="section-header">
+            <div class="section-title">閱讀清單</div>
+            <button class="btn" onclick="clearSaved()" style="font-size:12px;padding:5px 12px;">清空</button>
+          </div>
+          <div id="savedList">
+            <div class="empty-state">
+              <div class="empty-icon">🔖</div>
+              <div class="empty-title">尚無儲存項目</div>
+              <div class="empty-sub">點擊論文卡片上的「儲存」按鈕即可加入閱讀清單</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Notes Tab -->
+        <div class="tab-panel" id="panel-notes" style="padding-top:20px;">
+          <div class="section-header">
+            <div class="section-title">研究筆記</div>
+            <div style="display:flex;gap:8px;">
+              <button class="btn" onclick="clearNotes()" style="font-size:12px;padding:5px 12px;">清空</button>
+              <button class="btn btn-primary" onclick="saveNotes()" style="font-size:12px;padding:5px 12px;">儲存</button>
+            </div>
+          </div>
+          <textarea class="notes-area" id="notesArea" placeholder="在此記錄你的研究想法、問題、和觀察...&#10;&#10;提示：可以用 # 標記主題，例如：&#10;# 光合作用機制&#10;- 值得追蹤的論文...&#10;- 需要查清楚的問題..."></textarea>
+          <div style="font-size:11px;color:var(--text-dim);margin-top:8px;">筆記自動儲存於瀏覽器本地端</div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">✅ <span id="toastMsg"></span></div>
+<div id="nodeTooltip"></div>
+
+<script>
+// ─── State ───
+let state = {
+  keywords: ['photosynthesis', 'chloroplast'],
+  sources: { pubmed: true, arxiv: true, crossref: true, biorxiv: true, twitter: true, semantic: false },
+  papers: [],
+  crossPapers: [],
+  tweets: [],
+  gaps: [],
+  crossDomain: {
+    enabled: true,
+    organisms: ['animal', 'mammal', 'mouse', 'human'],
+    customTerms: [],
+  },
+  saved: JSON.parse(localStorage.getItem('phyto_saved') || '[]'),
+  notes: localStorage.getItem('phyto_notes') || '',
+  apiKey: localStorage.getItem('phyto_apikey') || '',
+};
+
+// ─── Init ───
+function init() {
+  renderKeywords();
+  renderOrgTags();
+  renderSaved();
+  document.getElementById('notesArea').value = state.notes;
+  document.getElementById('apiKeyInput').value = state.apiKey;
+  updateRlBadge();
+  updateNextRun();
+  document.getElementById('scheduleSelect').addEventListener('change', updateNextRun);
+
+  // Auto-run on load if schedule is daily etc.
+  // runSearch(); // Uncomment to auto-run
+}
+
+// ─── Keywords ───
+function addKeyword() {
+  const inp = document.getElementById('kwInput');
+  const val = inp.value.trim();
+  if (val && !state.keywords.includes(val)) {
+    state.keywords.push(val);
+    renderKeywords();
+  }
+  inp.value = '';
+  inp.focus();
+}
+
+function removeKeyword(kw) {
+  state.keywords = state.keywords.filter(k => k !== kw);
+  renderKeywords();
+}
+
+function renderKeywords() {
+  const el = document.getElementById('kwTags');
+  el.innerHTML = state.keywords.map(k => `
+    <div class="keyword-tag">
+      ${k}
+      <span class="rm" onclick="removeKeyword('${k}')">×</span>
+    </div>
+  `).join('');
+}
+
+// ─── Sources ───
+function toggleSource(name) {
+  state.sources[name] = !state.sources[name];
+  const el = document.getElementById('src-' + name);
+  el.classList.toggle('active', state.sources[name]);
+}
+
+// ─── API Key ───
+function saveApiKey(v) {
+  state.apiKey = v;
+  localStorage.setItem('phyto_apikey', v);
+}
+
+// ─── Tabs ───
+function switchTab(name) {
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    const panels = ['overview','papers','cross','network','twitter','gaps','saved','notes'];
+    t.classList.toggle('active', panels[i] === name);
+  });
+  document.querySelectorAll('.tab-panel').forEach(p => {
+    p.classList.toggle('active', p.id === 'panel-' + name);
+  });
+}
+
+// ─── Main Search ───
+async function runSearch() {
+  if (state.keywords.length === 0) { showToast('請先輸入至少一個關鍵字', '⚠️'); return; }
+
+  setLoading(true);
+  document.getElementById('overviewEmpty').style.display = 'none';
+  document.getElementById('overviewContent').style.display = 'block';
+  document.getElementById('summaryBox').innerHTML = renderSkeletons(3);
+  document.getElementById('papersList').innerHTML = renderSkeletons(4);
+  document.getElementById('gapsList').innerHTML = renderSkeletons(2);
+  if (state.crossDomain.enabled) {
+    document.getElementById('crossList').innerHTML = renderSkeletons(3);
+    document.getElementById('crossAIBox').style.display = 'none';
+  }
+
+  const query = state.keywords.join(' ');
+  const limit = parseInt(document.getElementById('limitSlider').value);
+
+  try {
+    const [pubmedPapers, arxivPapers, crossrefPapers, biorxivPapers] = await Promise.all([
+      state.sources.pubmed ? fetchPubMed(query, Math.ceil(limit/4)) : [],
+      state.sources.arxiv ? fetchArXiv(query, Math.ceil(limit/4)) : [],
+      state.sources.crossref ? fetchCrossRef(query, Math.ceil(limit/4)) : [],
+      state.sources.biorxiv ? fetchBioRxiv(query, Math.ceil(limit/4)) : [],
+    ]);
+
+    state.papers = [...pubmedPapers, ...arxivPapers, ...crossrefPapers, ...biorxivPapers]
+      .sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    // Simulated tweets (real Twitter API requires backend/bearer token)
+    state.tweets = generateSimulatedTweets(query);
+
+    document.getElementById('statPapers').textContent = state.papers.length;
+    document.getElementById('statTime').textContent = new Date().toLocaleTimeString('zh-TW', {hour:'2-digit',minute:'2-digit'});
+    document.getElementById('paperCount').textContent = `(${state.papers.length} 篇)`;
+
+    renderPapers();
+    renderTweets();
+
+    // Async quality enrichment (non-blocking)
+    enrichPaperQuality();
+
+    // Cross-domain search
+    if (state.crossDomain.enabled) {
+      runCrossDomainSearch(query);
+    }
+
+    if (state.apiKey) {
+      await runAIAnalysis(query);
+    } else {
+      document.getElementById('summaryBox').innerHTML = `
+        <h4>⚠️ 未設定 Anthropic API Key</h4>
+        <p>請在左側欄位輸入你的 API Key 以啟用 AI 摘要分析。你仍可瀏覽期刊論文。</p>
+        <h4>📊 搜尋結果統計</h4>
+        <p>共找到 <strong>${state.papers.length}</strong> 篇論文，關鍵字為：${state.keywords.map(k=>`<mark>${k}</mark>`).join('、')}。</p>
+      `;
+      document.getElementById('gapsList').innerHTML = `<div class="empty-state"><div class="empty-icon">🔑</div><div class="empty-title">需要 API Key</div><div class="empty-sub">設定 Anthropic API Key 後可使用 AI 研究缺口分析</div></div>`;
+    }
+
+  } catch(e) {
+    showToast('搜尋時發生錯誤：' + e.message, '❌');
+    console.error(e);
+  }
+
+  setLoading(false);
+}
+
+// ─── PubMed ───
+// Uses NCBI E-utilities — full CORS support, no custom headers needed
+async function fetchPubMed(query, max) {
+  try {
+    const base = 'https://eutils.ncbi.nlm.nih.gov/entrez/eutils/';
+    const searchUrl = `${base}esearch.fcgi?db=pubmed&term=${encodeURIComponent(query)}&retmax=${max}&sort=date&retmode=json&usehistory=n`;
+    const res = await fetch(searchUrl);
+    if (!res.ok) throw new Error(`PubMed search ${res.status}`);
+    const data = await res.json();
+    const ids = data?.esearchresult?.idlist || [];
+    if (!ids.length) return [];
+
+    const summaryUrl = `${base}esummary.fcgi?db=pubmed&id=${ids.join(',')}&retmode=json`;
+    const res2 = await fetch(summaryUrl);
+    if (!res2.ok) throw new Error(`PubMed summary ${res2.status}`);
+    const data2 = await res2.json();
+    const result = data2?.result || {};
+
+    return ids.map(id => {
+      const r = result[id];
+      if (!r || r.error) return null;
+      return {
+        source: 'pubmed', id,
+        title: r.title || 'Untitled',
+        authors: (r.authors || []).slice(0,3).map(a => a.name).join(', '),
+        date: r.pubdate || r.epubdate || '',
+        abstract: '',   // esummary doesn't return abstract; shown as empty
+        url: `https://pubmed.ncbi.nlm.nih.gov/${id}/`,
+        journal: r.source || '',
+        keywords: state.keywords,
+        doi: (r.articleids || []).find(a => a.idtype === 'doi')?.value || '',
+      };
+    }).filter(Boolean);
+  } catch(e) { console.warn('PubMed error', e); return []; }
+}
+
+// ─── arXiv ───
+// Uses the official Atom feed API — CORS allowed, no headers required
+async function fetchArXiv(query, max) {
+  try {
+    // Must use HTTP (not HTTPS export subdomain) for CORS from browser
+    const url = `https://arxiv.org/search/?searchtype=all&query=${encodeURIComponent(query)}&start=0`;
+    // Atom API endpoint (CORS-enabled):
+    const apiUrl = `https://export.arxiv.org/api/query?search_query=all:${encodeURIComponent(query)}&start=0&max_results=${max}&sortBy=submittedDate&sortOrder=descending`;
+    const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error(`arXiv ${res.status}`);
+    const text = await res.text();
+    const parser = new DOMParser();
+    const xml = parser.parseFromString(text, 'text/xml');
+    const entries = Array.from(xml.querySelectorAll('entry'));
+
+    return entries.map(e => {
+      const rawId = e.querySelector('id')?.textContent || '';
+      // id format: http://arxiv.org/abs/2301.12345v2  → extract "2301.12345"
+      const idMatch = rawId.match(/abs\/([^v]+)/);
+      const id = idMatch ? idMatch[1] : rawId;
+      return {
+        source: 'arxiv', id,
+        title: (e.querySelector('title')?.textContent || 'Untitled').trim().replace(/\s+/g,' '),
+        authors: Array.from(e.querySelectorAll('author name')).slice(0,3).map(a => a.textContent.trim()).join(', '),
+        date: e.querySelector('published')?.textContent?.substring(0,10) || '',
+        abstract: (e.querySelector('summary')?.textContent || '').trim().replace(/\s+/g,' '),
+        url: `https://arxiv.org/abs/${id}`,
+        journal: 'arXiv',
+        keywords: state.keywords,
+        doi: id,
+      };
+    });
+  } catch(e) { console.warn('arXiv error', e); return []; }
+}
+
+// ─── CrossRef ───
+// Public API — CORS allowed; must NOT send custom User-Agent (triggers preflight)
+async function fetchCrossRef(query, max) {
+  try {
+    const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&rows=${max}&sort=published&order=desc&select=DOI,title,author,published,abstract,container-title,URL&mailto=phytoscolar@research.tool`;
+    const res = await fetch(url);  // no custom headers!
+    if (!res.ok) throw new Error(`CrossRef ${res.status}`);
+    const data = await res.json();
+    return (data.message?.items || []).map(item => ({
+      source: 'crossref',
+      id: item.DOI || '',
+      title: (item.title || ['Untitled'])[0],
+      authors: (item.author || []).slice(0,3).map(a => `${a.given||''} ${a.family||''}`.trim()).join(', '),
+      date: item.published?.['date-parts']?.[0]?.join('-') || '',
+      abstract: item.abstract ? item.abstract.replace(/<[^>]+>/g,'').trim() : '',
+      url: item.URL || (item.DOI ? `https://doi.org/${item.DOI}` : '#'),
+      journal: (item['container-title'] || [''])[0],
+      keywords: state.keywords,
+      doi: item.DOI || '',
+    }));
+  } catch(e) { console.warn('CrossRef error', e); return []; }
+}
+
+// ─── bioRxiv ───
+// bioRxiv's own API has inconsistent CORS. Most reliable browser-safe method:
+// query CrossRef restricted to prefix 10.1101 (all bioRxiv DOIs use this prefix)
+async function fetchBioRxiv(query, max) {
+  try {
+    const url = `https://api.crossref.org/works?query=${encodeURIComponent(query)}&filter=prefix:10.1101&rows=${max}&sort=published&order=desc&select=DOI,title,author,posted,published,abstract,URL&mailto=phytoscolar@research.tool`;
+    const res = await fetch(url);  // no custom headers!
+    if (!res.ok) throw new Error(`bioRxiv/CrossRef ${res.status}`);
+    const data = await res.json();
+    return (data.message?.items || []).map(item => ({
+      source: 'biorxiv',
+      id: item.DOI || '',
+      title: (item.title || ['Untitled'])[0],
+      authors: (item.author || []).slice(0,3).map(a => `${a.given||''} ${a.family||''}`.trim()).join(', '),
+      date: item.posted?.['date-parts']?.[0]?.join('-') || item.published?.['date-parts']?.[0]?.join('-') || '',
+      abstract: item.abstract ? item.abstract.replace(/<[^>]+>/g,'').trim() : '',
+      url: item.URL || (item.DOI ? `https://doi.org/${item.DOI}` : '#'),
+      journal: 'bioRxiv',
+      keywords: state.keywords,
+      doi: item.DOI || '',
+    }));
+  } catch(e) { console.warn('bioRxiv error', e); return []; }
+}
+
+
+function generateSimulatedTweets(query) {
+  const accounts = [
+    { name: 'PlantBioDaily', handle: '@PlantBioDaily', init: 'P', color: '#2d8a4e' },
+    { name: 'Dr. Sarah Chen', handle: '@SarahChenLab', init: 'S', color: '#0d84d0' },
+    { name: 'PhytoResearch', handle: '@PhytoResearch', init: 'Ph', color: '#8b44e0' },
+    { name: 'GreenGenomics', handle: '@GreenGenomics', init: 'G', color: '#d4820a' },
+  ];
+  return [
+    { ...accounts[0], text: `🌱 New findings on ${query}: interesting connections being drawn to climate adaptation. Thread below 👇 #PlantScience #${query.replace(' ','').substring(0,12)}`, likes: 142, rts: 38, date: 'just now' },
+    { ...accounts[1], text: `Our lab just submitted a preprint on ${query} mechanisms. Really excited about these results — challenging some long-held assumptions! arxiv.org/... #openscience`, likes: 89, rts: 22, date: '2h ago' },
+    { ...accounts[2], text: `Anyone else seeing the ${query} / drought tolerance connection in their data? We're seeing some surprising results and would love to compare notes. DMs open.`, likes: 203, rts: 61, date: '5h ago' },
+    { ...accounts[3], text: `Review question: what's the current consensus on ${query} regulation under high CO₂? Trying to compile literature for a meta-analysis. Replies appreciated 🙏`, likes: 56, rts: 14, date: '1d ago' },
+  ];
+}
+
+// ─── Render Papers ───
+function renderPapers() {
+  if (!state.papers.length) {
+    document.getElementById('papersList').innerHTML = `<div class="empty-state"><div class="empty-icon">😔</div><div class="empty-title">找不到相關論文</div><div class="empty-sub">嘗試修改關鍵字或啟用更多資料來源</div></div>`;
+    return;
+  }
+  document.getElementById('papersList').innerHTML = state.papers.map((p, i) => {
+    const savedIds = state.saved.map(s=>s.id);
+    const isSaved = savedIds.includes(p.id);
+    const badgeClass = { pubmed: 'badge-pubmed', arxiv: 'badge-arxiv', crossref: 'badge-crossref', biorxiv: 'badge-biorxiv' }[p.source] || 'badge-crossref';
+    const sourceLabel = { pubmed: 'PubMed', arxiv: 'arXiv', crossref: 'CrossRef', biorxiv: 'bioRxiv' }[p.source] || p.source;
+    return `
+    <div class="paper-card" id="paper-${i}">
+      <div class="paper-meta">
+        <span class="paper-source-badge ${badgeClass}">${sourceLabel}</span>
+        <span class="paper-date">${p.date || 'n/d'}</span>
+        ${p.journal ? `<span style="font-size:11px;color:var(--text-dim);margin-left:4px;">· ${p.journal.substring(0,40)}</span>` : ''}
+      </div>
+      <div class="paper-title"><a href="${p.url}" target="_blank" rel="noopener">${highlight(p.title)}</a></div>
+      ${p.authors ? `<div class="paper-authors">${p.authors}${p.authors ? ' et al.' : ''}</div>` : ''}
+      <div class="quality-bar" id="quality-${i}">
+        <span class="cite-badge loading" style="width:80px;">&nbsp;</span>
+      </div>
+      ${p.abstract ? `<div class="paper-abstract" id="abs-${i}">${highlight(p.abstract.substring(0,400))}...</div>` : ''}
+      <div class="paper-footer">
+        <div class="paper-keywords">
+          ${state.keywords.map(k=>`<span class="pkw">${k}</span>`).join('')}
+        </div>
+        <div class="paper-actions">
+          ${p.abstract ? `<button class="paper-action-btn" onclick="toggleAbstract(${i})">展開摘要</button>` : ''}
+          <button class="paper-action-btn ${isSaved?'saved':''}" id="save-btn-${i}" onclick="toggleSave(${i})">${isSaved?'✓ 已儲存':'🔖 儲存'}</button>
+          <a href="${p.url}" target="_blank" rel="noopener" style="text-decoration:none;">
+            <button class="paper-action-btn">↗ 查看原文</button>
+          </a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ─── Render Tweets ───
+function renderTweets() {
+  document.getElementById('twitterList').innerHTML = `
+    <div style="background:var(--blue-dim);border:1px solid rgba(88,166,255,0.3);border-radius:var(--radius);padding:10px 14px;margin-bottom:16px;font-size:12px;color:var(--blue);">
+      ⚠️ X (Twitter) 完整 API 需後端 Bearer Token 授權。以下為示範格式；真實部署請串接後端代理或使用 nitter 開放端點。
+    </div>
+    ${state.tweets.map(t => `
+    <div class="tweet-card">
+      <div class="tweet-header">
+        <div class="tweet-avatar" style="background:${t.color}">${t.init}</div>
+        <div>
+          <div class="tweet-user-name">${t.name}</div>
+          <div class="tweet-handle">${t.handle}</div>
+        </div>
+        <div class="tweet-date">${t.date}</div>
+      </div>
+      <div class="tweet-text">${t.text}</div>
+      <div class="tweet-stats">
+        <span class="tweet-stat">❤️ ${t.likes}</span>
+        <span class="tweet-stat">🔁 ${t.rts}</span>
+        <span class="tweet-stat">💬 Reply</span>
+      </div>
+    </div>`).join('')}
+  `;
+}
+
+// ─── Cross-Domain Search ───
+function toggleCrossDomain() {
+  state.crossDomain.enabled = !state.crossDomain.enabled;
+  const el = document.getElementById('crossDomainToggle');
+  el.classList.toggle('active', state.crossDomain.enabled);
+  document.getElementById('crossDomainBody').style.opacity = state.crossDomain.enabled ? '1' : '0.4';
+  document.getElementById('crossDomainBody').style.pointerEvents = state.crossDomain.enabled ? '' : 'none';
+}
+
+function addOrganism() {
+  const inp = document.getElementById('orgInput');
+  const val = inp.value.trim();
+  if (val && !state.crossDomain.organisms.includes(val)) {
+    state.crossDomain.organisms.push(val);
+    renderOrgTags();
+  }
+  inp.value = '';
+}
+
+function removeOrganism(org) {
+  state.crossDomain.organisms = state.crossDomain.organisms.filter(o => o !== org);
+  renderOrgTags();
+}
+
+function renderOrgTags() {
+  document.getElementById('orgTags').innerHTML = state.crossDomain.organisms.map(o => `
+    <div class="keyword-tag" style="background:rgba(88,166,255,0.1);border-color:rgba(88,166,255,0.3);color:var(--blue);">
+      ${o}
+      <span class="rm" onclick="removeOrganism('${o}')">×</span>
+    </div>`).join('');
+}
+
+async function runCrossDomainSearch(baseQuery) {
+  // Build a compound query: base keywords + organism terms
+  const orgClause = state.crossDomain.organisms.slice(0,4).join(' OR ');
+  const crossQuery = `(${baseQuery}) AND (${orgClause})`;
+
+  try {
+    const [crossPubmed, crossCrossref] = await Promise.all([
+      state.sources.pubmed ? fetchPubMed(crossQuery, 8) : [],
+      state.sources.crossref ? fetchCrossRef(crossQuery, 8) : [],
+    ]);
+    state.crossPapers = [...crossPubmed, ...crossCrossref]
+      .sort((a,b) => new Date(b.date) - new Date(a.date));
+
+    document.getElementById('crossCount').textContent = `(${state.crossPapers.length} 篇)`;
+    renderCrossPapers();
+
+    if (state.apiKey && state.crossPapers.length > 0) {
+      await runCrossAIAnalysis(baseQuery);
+    }
+  } catch(e) {
+    console.warn('Cross-domain search error', e);
+    document.getElementById('crossList').innerHTML = `<div class="empty-state"><div class="empty-icon">😔</div><div class="empty-title">跨界搜尋失敗</div><div class="empty-sub">${e.message}</div></div>`;
+  }
+}
+
+function renderCrossPapers() {
+  const el = document.getElementById('crossList');
+  if (!state.crossPapers.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔬</div><div class="empty-title">找不到跨界論文</div><div class="empty-sub">試著調整「搜尋物種範圍」或關鍵字</div></div>`;
+    return;
+  }
+  const offset = state.papers.length; // use offset to avoid save-btn id collision
+  el.innerHTML = state.crossPapers.map((p, i) => {
+    const idx = offset + i;
+    const allSaved = [...state.papers, ...state.crossPapers];
+    const savedIds = state.saved.map(s=>s.id);
+    const isSaved = savedIds.includes(p.id);
+    const badgeClass = { pubmed:'badge-pubmed', arxiv:'badge-arxiv', crossref:'badge-crossref', biorxiv:'badge-biorxiv' }[p.source] || 'badge-crossref';
+    const sourceLabel = { pubmed:'PubMed', arxiv:'arXiv', crossref:'CrossRef', biorxiv:'bioRxiv' }[p.source] || p.source;
+    return `
+    <div class="paper-card" style="border-left:3px solid var(--blue);">
+      <div class="paper-meta">
+        <span style="font-size:10px;background:rgba(88,166,255,0.1);color:var(--blue);border:1px solid rgba(88,166,255,0.3);padding:2px 8px;border-radius:20px;font-family:'DM Mono',monospace;letter-spacing:0.5px;">跨界</span>
+        <span class="paper-source-badge ${badgeClass}" style="margin-left:4px;">${sourceLabel}</span>
+        <span class="paper-date">${p.date || 'n/d'}</span>
+        ${p.journal ? `<span style="font-size:11px;color:var(--text-dim);margin-left:4px;">· ${p.journal.substring(0,35)}</span>` : ''}
+      </div>
+      <div class="paper-title"><a href="${p.url}" target="_blank" rel="noopener">${highlight(p.title)}</a></div>
+      ${p.authors ? `<div class="paper-authors">${p.authors} et al.</div>` : ''}
+      ${p.abstract ? `<div class="paper-abstract" id="cabs-${i}">${highlight(p.abstract.substring(0,400))}...</div>` : ''}
+      <div class="paper-footer">
+        <div class="paper-keywords">
+          ${state.crossDomain.organisms.slice(0,3).map(o=>`<span class="pkw" style="background:var(--blue-dim);color:var(--blue);">${o}</span>`).join('')}
+        </div>
+        <div class="paper-actions">
+          ${p.abstract ? `<button class="paper-action-btn" onclick="toggleCrossAbstract(${i})">展開摘要</button>` : ''}
+          <button class="paper-action-btn ${isSaved?'saved':''}" id="csave-btn-${i}" onclick="toggleCrossSave(${i})">${isSaved?'✓ 已儲存':'🔖 儲存'}</button>
+          <a href="${p.url}" target="_blank" rel="noopener" style="text-decoration:none;">
+            <button class="paper-action-btn">↗ 查看原文</button>
+          </a>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCrossAbstract(i) {
+  document.getElementById(`cabs-${i}`)?.classList.toggle('expanded');
+}
+
+function toggleCrossSave(i) {
+  const p = state.crossPapers[i];
+  const idx = state.saved.findIndex(s => s.id === p.id);
+  if (idx >= 0) { state.saved.splice(idx, 1); showToast('已從閱讀清單移除'); }
+  else { state.saved.push(p); showToast('已加入閱讀清單 🔖'); }
+  localStorage.setItem('phyto_saved', JSON.stringify(state.saved));
+  updateRlBadge();
+  document.getElementById('statSaved').textContent = state.saved.length;
+  const btn = document.getElementById(`csave-btn-${i}`);
+  if (btn) { const isSaved = state.saved.find(s=>s.id===p.id); btn.textContent = isSaved?'✓ 已儲存':'🔖 儲存'; btn.classList.toggle('saved',!!isSaved); }
+  renderSaved();
+}
+
+async function runCrossAIAnalysis(baseQuery) {
+  const plantSample = state.papers.slice(0,8).map(p=>`- "${p.title}" (${p.date})`).join('\n');
+  const crossSample = state.crossPapers.slice(0,8).map(p=>`- "${p.title}" (${p.date})`).join('\n');
+
+  const prompt = `你是一位具有跨物種比較生物學背景的植物科學研究員，正在幫助一位博士一年級學生做跨界文獻分析。
+
+研究關鍵字：${state.keywords.join(', ')}
+比較物種：${state.crossDomain.organisms.join(', ')}
+
+【植物相關論文（共${state.papers.length}篇，樣本）】
+${plantSample}
+
+【動物／微生物相關論文（共${state.crossPapers.length}篇，樣本）】
+${crossSample}
+
+請以**繁體中文**完成以下分析：
+
+<CROSS_COMPARISON>
+2-3段說明：
+1. 這個機制在動物／微生物中研究的深度與廣度
+2. 植物端目前的研究狀況與主要差距
+3. 哪些動物研究的發現最值得植物科學借鏡
+</CROSS_COMPARISON>
+
+<TRANSLATION_OPPORTUNITIES>
+列出 2-3 個「可轉譯方向」，格式為 JSON：
+[
+  {"animal_finding": "動物研究發現", "plant_hypothesis": "對應的植物假說", "difficulty": "容易/中等/困難"},
+  ...
+]
+</TRANSLATION_OPPORTUNITIES>
+
+<SUGGESTED_KEYWORDS>
+建議 4-6 個新關鍵字組合，可以幫助搜尋到這個交叉研究領域的文獻（英文，逗號分隔）。
+</SUGGESTED_KEYWORDS>`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1500, messages: [{ role:'user', content: prompt }] })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+    parseCrossAIResponse(text);
+  } catch(e) { console.warn('Cross AI error', e); }
+}
+
+function parseCrossAIResponse(text) {
+  const extract = (tag) => {
+    const m = text.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`));
+    return m ? m[1].trim() : '';
+  };
+  const comparison = extract('CROSS_COMPARISON');
+  const transRaw = extract('TRANSLATION_OPPORTUNITIES');
+  const suggestedKws = extract('SUGGESTED_KEYWORDS');
+
+  let transHTML = '';
+  try {
+    const trans = JSON.parse(transRaw);
+    const diffColor = { '容易':'var(--green)', '中等':'var(--amber)', '困難':'var(--red)' };
+    transHTML = `<h4>🔄 可轉譯研究方向</h4>` + trans.map(t => `
+      <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:12px 14px;margin-bottom:8px;">
+        <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+          <span style="font-size:11px;padding:2px 8px;border-radius:20px;background:rgba(88,166,255,0.1);color:var(--blue);font-family:'DM Mono',monospace;">動物發現</span>
+          <span style="color:${diffColor[t.difficulty]||'var(--text-muted)'};font-size:11px;font-family:'DM Mono',monospace;">● ${t.difficulty||'—'}</span>
+        </div>
+        <div style="font-size:13px;color:var(--text);margin-bottom:4px;">${t.animal_finding}</div>
+        <div style="font-size:11px;color:var(--text-dim);margin-bottom:6px;">↓ 對應植物假說</div>
+        <div style="font-size:13px;color:var(--green);">${t.plant_hypothesis}</div>
+      </div>`).join('');
+  } catch(e) { transHTML = `<h4>🔄 可轉譯方向</h4><p>${transRaw}</p>`; }
+
+  const kwHTML = suggestedKws ? `
+    <h4>🔑 建議追加關鍵字</h4>
+    <div style="display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;">
+      ${suggestedKws.split(',').map(k=>`<span class="keyword-tag" style="cursor:pointer;" onclick="addSuggestedKeyword('${k.trim()}')">${k.trim()} <span style="opacity:0.6;font-size:11px;">＋</span></span>`).join('')}
+    </div>
+    <div style="font-size:11px;color:var(--text-dim);margin-top:6px;">點擊可加入搜尋關鍵字</div>` : '';
+
+  document.getElementById('crossAISummary').innerHTML = `
+    <h4>🔬 跨界機制比較分析</h4>
+    <p style="white-space:pre-line;">${comparison || '—'}</p>
+    ${transHTML}
+    ${kwHTML}
+  `;
+  document.getElementById('crossAIBox').style.display = 'block';
+}
+
+function addSuggestedKeyword(kw) {
+  if (!state.keywords.includes(kw)) {
+    state.keywords.push(kw);
+    renderKeywords();
+    showToast(`已加入關鍵字：${kw}`);
+  }
+}
+
+// ─── AI Analysis via Anthropic API ───
+async function runAIAnalysis(query) {
+  const paperSample = state.papers.slice(0, 15).map(p =>
+    `- [${p.source}] "${p.title}" (${p.date}) — ${p.abstract ? p.abstract.substring(0,200) : 'no abstract'}`
+  ).join('\n');
+
+  const prompt = `你是一位資深植物科學研究員助理，正在幫助一位博士一年級學生整理研究文獻。
+
+研究關鍵字：${state.keywords.join(', ')}
+
+以下是近期相關論文清單（共 ${state.papers.length} 篇，以下為前 15 篇樣本）：
+${paperSample}
+
+請根據以上資料，完成以下任務，以**繁體中文**回答，使用以下格式：
+
+<SUMMARY>
+用 3-4 句話總結這批文獻的整體研究方向與近期趨勢。
+</SUMMARY>
+
+<KEY_THEMES>
+列出 3-5 個主要研究主題（每個 15-30 字）。
+</KEY_THEMES>
+
+<RESEARCH_GAPS>
+分析 3 個現有研究明顯缺乏或值得深入探索的方向，每個以 JSON 物件格式：
+[
+  {"title": "缺口標題", "description": "50-80字說明", "keywords": ["關鍵詞1", "關鍵詞2"]},
+  ...
+]
+</RESEARCH_GAPS>
+
+<ADVICE>
+針對植物科學博士一年級學生，給 2-3 條具體可行的閱讀建議。
+</ADVICE>`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': state.apiKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 1800,
+        messages: [{ role: 'user', content: prompt }]
+      })
+    });
+    const data = await res.json();
+    const text = data.content?.[0]?.text || '';
+    parseAIResponse(text);
+  } catch(e) {
+    console.error('AI error', e);
+    document.getElementById('summaryBox').innerHTML = `<p style="color:var(--red)">AI 分析失敗：${e.message}</p>`;
+  }
+}
+
+function parseAIResponse(text) {
+  const extract = (tag) => {
+    const m = text.match(new RegExp(`<${tag}>([\\s\\S]*?)<\\/${tag}>`));
+    return m ? m[1].trim() : '';
+  };
+
+  const summary = extract('SUMMARY');
+  const themes = extract('KEY_THEMES');
+  const gapsRaw = extract('RESEARCH_GAPS');
+  const advice = extract('ADVICE');
+
+  // Summary box
+  document.getElementById('summaryBox').innerHTML = `
+    <h4>📊 文獻整體趨勢</h4>
+    <p>${summary || '無法解析摘要。'}</p>
+    <h4>🏷️ 主要研究主題</h4>
+    <p>${themes || '—'}</p>
+    <h4>💡 閱讀建議（針對博士生）</h4>
+    <p>${advice || '—'}</p>
+  `;
+
+  // Gaps
+  try {
+    const gaps = JSON.parse(gapsRaw);
+    state.gaps = gaps;
+    document.getElementById('statGaps').textContent = gaps.length;
+    document.getElementById('gapsList').innerHTML = gaps.map(g => `
+      <div class="gap-card">
+        <div class="gap-title">⚡ ${g.title}</div>
+        <div class="gap-body">${g.description}</div>
+        <div class="gap-keywords">
+          ${(g.keywords||[]).map(k=>`<span class="gap-kw">${k}</span>`).join('')}
+        </div>
+      </div>
+    `).join('') || '<div class="empty-state"><div class="empty-icon">✅</div><div class="empty-title">現有研究較為完整</div></div>';
+  } catch(e) {
+    document.getElementById('gapsList').innerHTML = `<div class="summary-box"><p>${gapsRaw || 'AI 未能解析研究缺口'}</p></div>`;
+  }
+}
+
+// ─── Helpers ───
+function highlight(text) {
+  if (!text) return '';
+  let t = text;
+  state.keywords.forEach(k => {
+    const re = new RegExp(`(${k})`, 'gi');
+    t = t.replace(re, '<mark>$1</mark>');
+  });
+  return t;
+}
+
+function toggleAbstract(i) {
+  const el = document.getElementById(`abs-${i}`);
+  el.classList.toggle('expanded');
+}
+
+function toggleSave(i) {
+  const p = state.papers[i];
+  const idx = state.saved.findIndex(s => s.id === p.id);
+  if (idx >= 0) {
+    state.saved.splice(idx, 1);
+    showToast('已從閱讀清單移除');
+  } else {
+    state.saved.push(p);
+    showToast('已加入閱讀清單 🔖');
+  }
+  localStorage.setItem('phyto_saved', JSON.stringify(state.saved));
+  updateRlBadge();
+  document.getElementById('statSaved').textContent = state.saved.length;
+  const btn = document.getElementById(`save-btn-${i}`);
+  if (btn) {
+    const isSaved = state.saved.find(s=>s.id===p.id);
+    btn.textContent = isSaved ? '✓ 已儲存' : '🔖 儲存';
+    btn.classList.toggle('saved', !!isSaved);
+  }
+  renderSaved();
+}
+
+function renderSaved() {
+  const el = document.getElementById('savedList');
+  if (!state.saved.length) {
+    el.innerHTML = `<div class="empty-state"><div class="empty-icon">🔖</div><div class="empty-title">尚無儲存項目</div><div class="empty-sub">點擊論文卡片上的「儲存」按鈕即可加入閱讀清單</div></div>`;
+    return;
+  }
+  el.innerHTML = state.saved.map((p,i) => {
+    const icons = { pubmed:'🧬', arxiv:'📄', crossref:'📚', biorxiv:'🧪', twitter:'🐦' };
+    return `
+    <div class="saved-card">
+      <div class="saved-card-icon">${icons[p.source]||'📄'}</div>
+      <div class="saved-card-body">
+        <div class="saved-card-title">${p.title}</div>
+        <div class="saved-card-meta">${p.source.toUpperCase()} · ${p.date || '—'} · ${p.authors ? p.authors.substring(0,40)+'...' : ''}</div>
+        <a class="saved-card-link" href="${p.url}" target="_blank">↗ 查看原文</a>
+      </div>
+      <button class="paper-action-btn" onclick="removeSaved(${i})" style="flex-shrink:0;">✕</button>
+    </div>`;
+  }).join('');
+}
+
+function removeSaved(i) {
+  state.saved.splice(i, 1);
+  localStorage.setItem('phyto_saved', JSON.stringify(state.saved));
+  updateRlBadge();
+  document.getElementById('statSaved').textContent = state.saved.length;
+  renderSaved();
+}
+
+function clearSaved() {
+  state.saved = [];
+  localStorage.setItem('phyto_saved', '[]');
+  updateRlBadge();
+  document.getElementById('statSaved').textContent = 0;
+  renderSaved();
+}
+
+function updateRlBadge() {
+  document.getElementById('rlBadge').textContent = state.saved.length;
+}
+
+function sortPapers() {
+  const by = document.getElementById('sortSelect').value;
+  if (by === 'date') state.papers.sort((a,b)=>new Date(b.date)-new Date(a.date));
+  if (by === 'title') state.papers.sort((a,b)=>a.title.localeCompare(b.title));
+  renderPapers();
+}
+
+function saveNotes() {
+  state.notes = document.getElementById('notesArea').value;
+  localStorage.setItem('phyto_notes', state.notes);
+  showToast('筆記已儲存 ✓');
+}
+
+function clearNotes() {
+  document.getElementById('notesArea').value = '';
+  state.notes = '';
+  localStorage.setItem('phyto_notes', '');
+}
+
+// Auto-save notes every 30s
+setInterval(() => {
+  state.notes = document.getElementById('notesArea')?.value || '';
+  localStorage.setItem('phyto_notes', state.notes);
+}, 30000);
+
+function setLoading(loading) {
+  const btn = document.getElementById('runBtn');
+  const text = document.getElementById('runBtnText');
+  btn.classList.toggle('loading', loading);
+  text.textContent = loading ? '收集中...' : '🚀 開始收集研究資料';
+
+  const dot = document.getElementById('statusDot');
+  const statusText = document.getElementById('statusText');
+  dot.style.background = loading ? 'var(--amber)' : 'var(--green)';
+  dot.style.boxShadow = loading ? '0 0 8px var(--amber)' : '0 0 8px var(--green)';
+  statusText.textContent = loading ? '收集中...' : '待機中';
+}
+
+function renderSkeletons(n) {
+  return Array(n).fill(0).map(() => `
+    <div class="skeleton-card">
+      <div class="skeleton sk-line w-30"></div>
+      <div class="skeleton sk-line w-80" style="margin-top:10px;height:16px;"></div>
+      <div class="skeleton sk-line w-60" style="margin-top:6px;"></div>
+      <div class="skeleton sk-line w-100 h-tall" style="margin-top:10px;"></div>
+    </div>
+  `).join('');
+}
+
+function showToast(msg, icon='✅') {
+  const t = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  t.querySelector('span')?.parentNode && (t.innerHTML = `${icon} <span>${msg}</span>`);
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+function updateNextRun() {
+  const val = document.getElementById('scheduleSelect').value;
+  const el = document.getElementById('nextRunLabel');
+  if (val === 'manual') { el.textContent = ''; return; }
+  if (val === 'daily') { el.textContent = '下次執行：明日 08:00'; }
+  if (val === 'twice') { el.textContent = '下次執行：今日 20:00'; }
+  if (val === 'weekly') { el.textContent = '下次執行：下週一 08:00'; }
+}
+
+function exportReport() {
+  if (!state.papers.length) { showToast('請先執行搜尋', '⚠️'); return; }
+  const lines = [
+    `# PhytoScholar 研究報告`,
+    `生成時間：${new Date().toLocaleString('zh-TW')}`,
+    `關鍵字：${state.keywords.join(', ')}`,
+    `共 ${state.papers.length} 篇論文\n`,
+    `## 論文清單`,
+    ...state.papers.map((p,i)=>
+      `${i+1}. [${p.source.toUpperCase()}] ${p.title}\n   作者：${p.authors||'—'}\n   日期：${p.date||'—'}\n   連結：${p.url}\n   摘要：${(p.abstract||'').substring(0,200)}\n`
+    ),
+  ];
+  const blob = new Blob([lines.join('\n')], {type:'text/plain;charset=utf-8'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `phytoscolar-report-${Date.now()}.txt`;
+  a.click();
+  showToast('報告匯出成功 📥');
+}
+
+init();
+
+// ─── Load D3 dynamically ───
+(function loadD3() {
+  const s = document.createElement('script');
+  s.src = 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js';
+  s.onload = () => { window._d3ready = true; };
+  document.head.appendChild(s);
+})();
+
+// ════════════════════════════════════════════════
+// QUALITY ENRICHMENT  (Semantic Scholar + OpenAlex)
+// ════════════════════════════════════════════════
+
+// Cache to avoid repeat API calls across re-renders
+const qualityCache = {};
+
+async function enrichPaperQuality() {
+  // Process in batches of 5 to avoid rate limits
+  const papers = state.papers;
+  for (let i = 0; i < papers.length; i += 5) {
+    const batch = papers.slice(i, i + 5);
+    await Promise.allSettled(batch.map((p, j) => enrichOne(p, i + j)));
+    if (i + 5 < papers.length) await sleep(400); // polite delay
+  }
+}
+
+function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
+
+async function enrichOne(paper, idx) {
+  const el = document.getElementById(`quality-${idx}`);
+  if (!el) return;
+
+  const cacheKey = paper.id || paper.title;
+  if (qualityCache[cacheKey]) {
+    renderQualityBar(el, qualityCache[cacheKey], paper);
+    paper.quality = qualityCache[cacheKey];
+    return;
+  }
+
+  try {
+    let data = null;
+
+    // Try Semantic Scholar by DOI first, then by title
+    const doi = paper.id && paper.id.includes('/') ? paper.id : null;
+    const ssUrl = doi
+      ? `https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}?fields=citationCount,referenceCount,isOpenAccess,publicationVenue,influentialCitationCount,externalIds`
+      : `https://api.semanticscholar.org/graph/v1/paper/search?query=${encodeURIComponent(paper.title.substring(0,80))}&limit=1&fields=citationCount,referenceCount,isOpenAccess,publicationVenue,influentialCitationCount`;
+
+    const res = await fetch(ssUrl);  // no custom headers — avoids CORS preflight
+    if (res.ok) {
+      const raw = await res.json();
+      const item = raw.data ? raw.data[0] : raw;
+      if (item && (item.citationCount !== undefined)) {
+        data = {
+          citations: item.citationCount || 0,
+          references: item.referenceCount || 0,
+          influential: item.influentialCitationCount || 0,
+          openAccess: item.isOpenAccess || false,
+          venue: item.publicationVenue?.name || '',
+          ssId: item.paperId || '',
+        };
+      }
+    }
+
+    // If Semantic Scholar gave nothing, try OpenAlex by DOI
+    if (!data && doi) {
+      const oaRes = await fetch(`https://api.openalex.org/works/https://doi.org/${doi}?select=cited_by_count,open_access,host_venue`);
+      if (oaRes.ok) {
+        const oaData = await oaRes.json();
+        data = {
+          citations: oaData.cited_by_count || 0,
+          references: 0,
+          influential: 0,
+          openAccess: oaData.open_access?.is_oa || false,
+          venue: oaData.host_venue?.display_name || '',
+          ssId: '',
+        };
+      }
+    }
+
+    if (!data) data = { citations: null, references: 0, influential: 0, openAccess: false, venue: '', ssId: '' };
+
+    qualityCache[cacheKey] = data;
+    paper.quality = data;
+    if (el) renderQualityBar(el, data, paper);
+
+  } catch(e) {
+    if (el) el.innerHTML = ''; // silently clear skeleton
+  }
+}
+
+function renderQualityBar(el, q, paper) {
+  const cites = q.citations;
+  const citeClass = cites === null ? 'low' : cites >= 100 ? 'high' : cites >= 20 ? 'med' : 'low';
+  const citeLabel = cites === null ? '引用數 —' : `被引 ${cites.toLocaleString()} 次`;
+  const citeTitle = q.influential > 0 ? `其中 ${q.influential} 次具高影響力` : '';
+
+  // Quartile estimation from citations (rough proxy without Scimago)
+  let quartileHTML = '';
+  if (cites !== null && paper.source !== 'arxiv' && paper.source !== 'biorxiv') {
+    const q_est = cites >= 200 ? 'Q1' : cites >= 50 ? 'Q2' : cites >= 10 ? 'Q3' : 'Q4';
+    const q_class = q_est.toLowerCase();
+    quartileHTML = `<span class="quartile-badge ${q_class}" title="依被引次數估算，僅供參考">${q_est} 估</span>`;
+  }
+
+  const oaHTML = q.openAccess
+    ? `<span class="cite-badge oa-badge" title="Open Access 可免費取得全文">🔓 開放取用</span>` : '';
+
+  const retractHTML = paper.retracted
+    ? `<span class="cite-badge retract-badge">⛔ 已撤稿</span>` : '';
+
+  const refHTML = q.references > 0
+    ? `<span class="cite-badge low" title="參考文獻數量">↗ ${q.references} 篇參考</span>` : '';
+
+  el.innerHTML = `
+    <span class="cite-badge ${citeClass}" title="${citeTitle}">📊 ${citeLabel}</span>
+    ${quartileHTML}
+    ${oaHTML}
+    ${refHTML}
+    ${retractHTML}
+  `;
+}
+
+// ════════════════════════════════════════════════
+// CITATION NETWORK  (D3 force-directed graph)
+// ════════════════════════════════════════════════
+
+let networkState = { nodes: [], links: [], simulation: null, svg: null, zoom: null, showLabels: true, minCites: 0 };
+
+async function buildNetwork() {
+  if (!window._d3ready) { showToast('D3 載入中，請稍後再試', '⏳'); return; }
+  if (!state.papers.length) { showToast('請先執行搜尋', '⚠️'); return; }
+
+  document.getElementById('networkEmpty').style.display = 'none';
+  document.getElementById('networkContent').style.display = 'block';
+  document.getElementById('networkStats').textContent = '建立引用關係中...';
+
+  // Build nodes from papers (use quality data already fetched)
+  const nodes = state.papers.map((p, i) => ({
+    id: i,
+    title: p.title,
+    source: p.source,
+    date: p.date,
+    url: p.url,
+    citations: p.quality?.citations || 0,
+    openAccess: p.quality?.openAccess || false,
+    journal: p.journal || '',
+    authors: p.authors || '',
+  }));
+
+  // Build links via Semantic Scholar reference data (batch fetch top 8 papers by citation)
+  const topPapers = [...state.papers]
+    .sort((a,b) => (b.quality?.citations||0) - (a.quality?.citations||0))
+    .slice(0, 8);
+
+  const links = [];
+  const ssLinks = await fetchCitationLinks(topPapers, state.papers);
+  links.push(...ssLinks);
+
+  // Also add keyword-proximity links (papers sharing same keywords = soft link)
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i+1; j < nodes.length; j++) {
+      if (links.find(l => (l.source===i&&l.target===j)||(l.source===j&&l.target===i))) continue;
+      // Connect papers from same year as soft links
+      if (nodes[i].date && nodes[j].date && nodes[i].date.substring(0,4) === nodes[j].date.substring(0,4)) {
+        if (Math.random() < 0.15) links.push({ source: i, target: j, type: 'soft' });
+      }
+    }
+  }
+
+  networkState.nodes = nodes;
+  networkState.links = links;
+  drawNetwork();
+  document.getElementById('networkStats').textContent =
+    `${nodes.length} 篇論文 · ${links.filter(l=>l.type!=='soft').length} 條引用關係 · ${links.filter(l=>l.type==='soft').length} 條同期關聯`;
+}
+
+async function fetchCitationLinks(topPapers, allPapers) {
+  const links = [];
+  for (const p of topPapers) {
+    try {
+      const doi = p.id && p.id.includes('/') ? p.id : null;
+      if (!doi) continue;
+      const res = await fetch(
+        `https://api.semanticscholar.org/graph/v1/paper/DOI:${encodeURIComponent(doi)}/references?fields=title&limit=20`
+      );  // no custom headers
+      if (!res.ok) continue;
+      const data = await res.json();
+      const srcIdx = allPapers.indexOf(p);
+      (data.data || []).forEach(ref => {
+        const refTitle = ref.citedPaper?.title?.toLowerCase() || '';
+        allPapers.forEach((ap, j) => {
+          if (j !== srcIdx && ap.title.toLowerCase().includes(refTitle.substring(0,30))) {
+            if (!links.find(l => l.source===srcIdx && l.target===j))
+              links.push({ source: srcIdx, target: j, type: 'citation' });
+          }
+        });
+      });
+      await sleep(200);
+    } catch(e) {}
+  }
+  return links;
+}
+
+function drawNetwork() {
+  const { nodes, links } = networkState;
+  const svg = d3.select('#network-svg');
+  svg.selectAll('*').remove();
+  const W = document.getElementById('network-svg').clientWidth || 700;
+  const H = 520;
+  svg.attr('viewBox', `0 0 ${W} ${H}`);
+
+  const colorMap = { pubmed:'#3fb950', arxiv:'#58a6ff', crossref:'#bc8cff', biorxiv:'#e07840' };
+
+  // Zoom
+  const zoomG = svg.append('g');
+  const zoom = d3.zoom().scaleExtent([0.2, 4]).on('zoom', e => zoomG.attr('transform', e.transform));
+  svg.call(zoom);
+  networkState.zoom = zoom;
+  networkState.svg = svg;
+
+  // Filter by minCites
+  const minC = networkState.minCites;
+  const visNodes = nodes.filter(n => n.citations >= minC);
+  const visIds = new Set(visNodes.map(n=>n.id));
+  const visLinks = links.filter(l => visIds.has(l.source) && visIds.has(l.target));
+
+  // Simulation
+  const sim = d3.forceSimulation(visNodes)
+    .force('link', d3.forceLink(visLinks).id(d=>d.id).distance(d => d.type==='soft' ? 120 : 70))
+    .force('charge', d3.forceManyBody().strength(-180))
+    .force('center', d3.forceCenter(W/2, H/2))
+    .force('collision', d3.forceCollide().radius(d => nodeR(d) + 6));
+  networkState.simulation = sim;
+
+  // Links
+  const link = zoomG.append('g').selectAll('line').data(visLinks).join('line')
+    .attr('stroke', d => d.type==='citation' ? 'rgba(88,166,255,0.5)' : 'rgba(100,110,120,0.2)')
+    .attr('stroke-width', d => d.type==='citation' ? 1.5 : 0.8)
+    .attr('stroke-dasharray', d => d.type==='soft' ? '4,3' : null);
+
+  // Nodes
+  const tooltip = document.getElementById('nodeTooltip');
+  const node = zoomG.append('g').selectAll('g').data(visNodes).join('g')
+    .attr('cursor', 'pointer')
+    .call(d3.drag()
+      .on('start', (e,d) => { if(!e.active) sim.alphaTarget(0.3).restart(); d.fx=d.x; d.fy=d.y; })
+      .on('drag',  (e,d) => { d.fx=e.x; d.fy=e.y; })
+      .on('end',   (e,d) => { if(!e.active) sim.alphaTarget(0); d.fx=null; d.fy=null; }))
+    .on('click', (e,d) => { window.open(d.url,'_blank'); })
+    .on('mousemove', (e,d) => {
+      tooltip.style.display = 'block';
+      tooltip.style.left = (e.clientX+14)+'px';
+      tooltip.style.top  = (e.clientY-10)+'px';
+      tooltip.innerHTML = `
+        <div style="font-weight:600;margin-bottom:4px;font-size:12px;">${d.title.substring(0,80)}${d.title.length>80?'…':''}</div>
+        <div style="color:var(--text-muted);font-size:11px;">${d.authors.substring(0,50)} · ${d.date||'—'}</div>
+        <div style="margin-top:6px;display:flex;gap:8px;font-size:11px;font-family:'DM Mono',monospace;">
+          <span style="color:var(--green);">📊 被引 ${d.citations}</span>
+          ${d.openAccess?'<span style="color:var(--green);">🔓 OA</span>':''}
+        </div>
+        <div style="margin-top:4px;font-size:10px;color:var(--text-dim);">點擊開啟論文</div>`;
+    })
+    .on('mouseleave', () => { tooltip.style.display='none'; });
+
+  // OA ring
+  node.filter(d=>d.openAccess).append('circle')
+    .attr('r', d => nodeR(d)+3)
+    .attr('fill','none')
+    .attr('stroke',colorMap[d=>d.source]||'#3fb950')
+    .attr('stroke-width',1.5)
+    .attr('stroke-dasharray','3,2')
+    .attr('opacity',0.6);
+
+  node.append('circle')
+    .attr('r', d => nodeR(d))
+    .attr('fill', d => colorMap[d.source] || '#7d8590')
+    .attr('fill-opacity', 0.85)
+    .attr('stroke', '#0d1117')
+    .attr('stroke-width', 1.5);
+
+  // Labels
+  const label = node.append('text')
+    .attr('dy', d => -nodeR(d)-4)
+    .attr('text-anchor', 'middle')
+    .attr('font-size', '10px')
+    .attr('fill', 'var(--text-muted)')
+    .attr('pointer-events','none')
+    .text(d => d.title.substring(0,28)+(d.title.length>28?'…':''))
+    .attr('class','net-label');
+
+  sim.on('tick', () => {
+    link.attr('x1',d=>d.source.x).attr('y1',d=>d.source.y).attr('x2',d=>d.target.x).attr('y2',d=>d.target.y);
+    node.attr('transform', d=>`translate(${d.x},${d.y})`);
+  });
+
+  // Fade in
+  node.attr('opacity',0).transition().duration(600).delay((_,i)=>i*30).attr('opacity',1);
+}
+
+function nodeR(d) {
+  const c = d.citations || 0;
+  return Math.max(6, Math.min(28, 6 + Math.sqrt(c) * 1.2));
+}
+
+function toggleLabels() {
+  networkState.showLabels = document.getElementById('showLabels').checked;
+  d3.selectAll('.net-label').attr('display', networkState.showLabels ? null : 'none');
+}
+
+function filterNetworkByCites(val) {
+  networkState.minCites = parseInt(val);
+  document.getElementById('minCiteVal').textContent = val;
+  if (networkState.nodes.length) drawNetwork();
+}
+
+function resetNetworkZoom() {
+  if (networkState.svg && networkState.zoom)
+    networkState.svg.transition().duration(500).call(networkState.zoom.transform, d3.zoomIdentity);
+}
+</script>
+</body>
+</html>
