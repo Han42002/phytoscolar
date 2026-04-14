@@ -641,16 +641,26 @@ mark { background: rgba(82,183,136,.25); color: inherit; border-radius: 2px; pad
       <span class="chevron" id="chev-ai-section">▼</span>
     </div>
     <div class="collapsible-body" id="ai-section">
-      <div style="font-size:.72rem;color:var(--ink-3);margin-bottom:8px;line-height:1.6;">
-        使用 <strong>Google Gemini 免費版</strong>（每天 1,500 次，無需信用卡）<br>
+      <div style="font-size:.72rem;color:var(--ink-3);margin-bottom:10px;line-height:1.7;">
+        使用 <strong>Google Gemini 免費版</strong>（無需信用卡）<br>
         取得：<a href="https://aistudio.google.com/app/apikey" target="_blank" style="color:var(--info);">aistudio.google.com</a> → Get API Key
       </div>
       <input class="api-input" type="password" id="geminiKey" placeholder="選填：AIza..." oninput="saveKey()">
-      <div class="api-note" id="aiStatus">未設定 · 文獻搜尋仍可正常使用</div>
-      <div style="margin-top:12px;font-size:.72rem;color:var(--ink-3);line-height:1.6;">
-        也可使用 Anthropic Claude（付費）：
+      <div style="margin-top:8px;">
+        <div style="font-size:.7rem;color:var(--ink-3);margin-bottom:4px;">Gemini 模型版本</div>
+        <select id="geminiModel" onchange="saveKey()" style="width:100%;font-family:var(--mono);font-size:.75rem;border:1px solid var(--rule);border-radius:var(--r);padding:6px 8px;background:var(--bg);color:var(--ink);outline:none;cursor:pointer;">
+          <option value="gemini-1.5-flash">gemini-1.5-flash（免費穩定，推薦）</option>
+          <option value="gemini-1.5-flash-8b">gemini-1.5-flash-8b（最輕量）</option>
+          <option value="gemini-2.0-flash">gemini-2.0-flash（較新，有配額限制）</option>
+          <option value="gemini-2.5-flash-preview-04-17">gemini-2.5-flash（最新預覽版）</option>
+          <option value="gemini-2.5-pro-preview-05-06">gemini-2.5-pro（最強，付費）</option>
+        </select>
       </div>
-      <input class="api-input" type="password" id="claudeKey" placeholder="選填：sk-ant-..." oninput="saveKey()" style="margin-top:5px;">
+      <div class="api-note" id="aiStatus" style="margin-top:6px;">未設定 · 文獻搜尋仍可正常使用</div>
+      <div style="margin-top:12px;padding-top:10px;border-top:1px solid var(--rule);">
+        <div style="font-size:.7rem;color:var(--ink-3);margin-bottom:5px;">Anthropic Claude（備用，付費）</div>
+        <input class="api-input" type="password" id="claudeKey" placeholder="選填：sk-ant-..." oninput="saveKey()">
+      </div>
     </div>
   </div>
 
@@ -846,6 +856,7 @@ const S = {
   saved: JSON.parse(localStorage.getItem('ps_saved')||'[]'),
   notes: localStorage.getItem('ps_notes')||'',
   geminiKey: localStorage.getItem('ps_gemini')||'',
+  geminiModel: localStorage.getItem('ps_gemini_model')||'gemini-1.5-flash',
   claudeKey: localStorage.getItem('ps_claude')||'',
 };
 
@@ -859,6 +870,7 @@ function init() {
   document.getElementById('notesArea').value = S.notes;
   document.getElementById('geminiKey').value = S.geminiKey;
   document.getElementById('claudeKey').value = S.claudeKey;
+  document.getElementById('geminiModel').value = S.geminiModel;
   updateAiStatus(); updateRlBadge();
   setInterval(autoSaveNotes, 30000);
   loadD3();
@@ -923,21 +935,33 @@ function renderOrgs() {
 // AI KEY
 // ═══════════════════════════════
 function saveKey() {
-  S.geminiKey = document.getElementById('geminiKey').value;
-  S.claudeKey = document.getElementById('claudeKey').value;
+  S.geminiKey   = document.getElementById('geminiKey').value;
+  S.claudeKey   = document.getElementById('claudeKey').value;
+  S.geminiModel = document.getElementById('geminiModel').value;
   localStorage.setItem('ps_gemini', S.geminiKey);
   localStorage.setItem('ps_claude', S.claudeKey);
+  localStorage.setItem('ps_gemini_model', S.geminiModel);
   updateAiStatus();
 }
+
+const MODEL_LABELS = {
+  'gemini-1.5-flash':               'Gemini 1.5 Flash · 免費',
+  'gemini-1.5-flash-8b':            'Gemini 1.5 Flash-8B · 免費',
+  'gemini-2.0-flash':               'Gemini 2.0 Flash · 免費',
+  'gemini-2.5-flash-preview-04-17': 'Gemini 2.5 Flash · 預覽',
+  'gemini-2.5-pro-preview-05-06':   'Gemini 2.5 Pro · 付費',
+};
+
 function updateAiStatus() {
   const el = document.getElementById('aiStatus');
   const ml = document.getElementById('modelLabel');
   if (S.geminiKey) {
-    el.textContent = '✓ Gemini 免費版已設定';
+    const label = MODEL_LABELS[S.geminiModel] || S.geminiModel;
+    el.textContent = `✓ ${label} 已設定`;
     el.style.color = 'var(--accent)';
-    ml.textContent = 'Gemini 2.0 Flash · 免費';
+    ml.textContent = label;
   } else if (S.claudeKey) {
-    el.textContent = '✓ Claude (Anthropic) 已設定';
+    el.textContent = '✓ Claude Sonnet 4 (Anthropic) 已設定';
     el.style.color = 'var(--info)';
     ml.textContent = 'Claude Sonnet 4 · 付費';
   } else {
@@ -1244,26 +1268,67 @@ function toggleCSave(i) {
 // ═══════════════════════════════
 // AI — GEMINI + CLAUDE FALLBACK
 // ═══════════════════════════════
+
+// Gemini fallback chain when quota is hit
+const GEMINI_FALLBACK = [
+  'gemini-1.5-flash',
+  'gemini-1.5-flash-8b',
+  'gemini-2.0-flash',
+];
+
+async function callGemini(prompt, model) {
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${S.geminiKey}`;
+  const r = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: { maxOutputTokens: 1800, temperature: 0.4 }
+    })
+  });
+  const d = await r.json();
+  if (d.error) throw Object.assign(new Error(d.error.message), { code: d.error.code, isQuota: d.error.message.includes('quota') || d.error.message.includes('Quota') || d.error.status === 'RESOURCE_EXHAUSTED' });
+  return d.candidates?.[0]?.content?.parts?.[0]?.text || '';
+}
+
 async function callAI(prompt) {
   if (S.geminiKey) {
-    const r = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${S.geminiKey}`,{
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({ contents:[{ parts:[{text:prompt}] }] })
+    // Try the selected model first
+    const preferred = S.geminiModel;
+    const chain = [preferred, ...GEMINI_FALLBACK.filter(m => m !== preferred)];
+
+    for (const model of chain) {
+      try {
+        const text = await callGemini(prompt, model);
+        // Update label if we fell back to a different model
+        if (model !== preferred) {
+          toast(`⚠️ ${preferred} 配額已滿，改用 ${model}`);
+          document.getElementById('modelLabel').textContent = MODEL_LABELS[model] || model;
+        }
+        return text;
+      } catch(e) {
+        if (e.isQuota) {
+          console.warn(`Quota exceeded for ${model}, trying next…`);
+          continue; // try next model
+        }
+        throw e; // non-quota error, propagate
+      }
+    }
+    throw new Error('所有 Gemini 模型配額已用盡，請稍後再試或改用 Claude API。');
+  }
+
+  if (S.claudeKey) {
+    const r = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-api-key': S.claudeKey, 'anthropic-version': '2023-06-01' },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 1800, messages: [{ role: 'user', content: prompt }] })
     });
     const d = await r.json();
     if (d.error) throw new Error(d.error.message);
-    return d.candidates?.[0]?.content?.parts?.[0]?.text||'';
+    return d.content?.[0]?.text || '';
   }
-  if (S.claudeKey) {
-    const r = await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':S.claudeKey,'anthropic-version':'2023-06-01'},
-      body: JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:1800, messages:[{role:'user',content:prompt}] })
-    });
-    const d = await r.json();
-    return d.content?.[0]?.text||'';
-  }
-  throw new Error('No AI key');
+
+  throw new Error('未設定 AI Key');
 }
 
 async function runAI(q) {
